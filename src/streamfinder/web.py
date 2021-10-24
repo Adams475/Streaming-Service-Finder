@@ -2,6 +2,8 @@ import os
 import json
 from flask import Flask, render_template, request, url_for, redirect, session
 
+import streamfinder.database as db
+
 def run_website():
 
 	template_folder = os.path.join(os.path.dirname(__file__), 'templates')
@@ -25,7 +27,7 @@ def run_website():
 	def exampleGET(multiplier):
 		num = request.args.get("number")
 		adder = request.args.get("adder")
-		return render_template('index.html', variable_from_python=f"After multiplying by {multiplier} and adding {adder}, your result is: {int(num) * int(multiplier) + int(adder)}")
+		return render_template('index.html', variable_from_python=f"After multiplying by {multiplier} and adding {adder}, your result is: {int(num) * int(multiplier) + int(adder)} then also {users}")
 
 
 	### Example of handling POST request
