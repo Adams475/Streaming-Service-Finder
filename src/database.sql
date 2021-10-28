@@ -54,45 +54,45 @@ CREATE TABLE IF NOT EXISTS Media(
 CREATE TABLE IF NOT EXISTS ViewableOn(
   media_id INTEGER NOT NULL,
   ss_id INTEGER NOT NULL,
+  PRIMARY KEY(media_id, ss_id),
   FOREIGN KEY(media_id) REFERENCES Media(media_id),
   FOREIGN KEY(ss_id) REFERENCES StreamingService(ss_id)
 );
-CREATE UNIQUE INDEX ViewableOnIndex ON ViewableOn(media_id, ss_id);
 
 CREATE TABLE IF NOT EXISTS StarsIn(
   actor_id INTEGER NOT NULL,
   media_id INTEGER NOT NULL,
+  PRIMARY KEY(actor_id, media_id),
   FOREIGN KEY(actor_id) REFERENCES Actor(actor_id),
   FOREIGN KEY(media_id) REFERENCES Media(media_id)
 );
-CREATE UNIQUE INDEX StarsInIndex ON StarsIn(actor_id, media_id);
 
 CREATE TABLE IF NOT EXISTS MediaRating(
   media_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   score INTEGER NOT NULL,
+  PRIMARY KEY(media_id, user_id),
   FOREIGN KEY(media_id) REFERENCES Media(media_id),
   FOREIGN KEY(user_id) REFERENCES User(user_id)
 );
-CREATE UNIQUE INDEX MediaRatingIndex ON MediaRating(media_id, user_id);
 
 CREATE TABLE IF NOT EXISTS ActorRating(
   actor_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   score INTEGER NOT NULL,
+  PRIMARY KEY(actor_id, user_id),
   FOREIGN KEY(actor_id) REFERENCES Actor(actor_id),
   FOREIGN KEY(user_id) REFERENCES User(user_id)
 );
-CREATE UNIQUE INDEX ActorRatingIndex ON ActorRating(actor_id, user_id);
 
 CREATE TABLE IF NOT EXISTS DirectorRating(
   director_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   score INTEGER NOT NULL,
+  PRIMARY KEY(director_id, user_id),
   FOREIGN KEY(director_id) REFERENCES Director(director_id),
   FOREIGN KEY(user_id) REFERENCES User(user_id)
 );
-CREATE UNIQUE INDEX DirectorRatingIndex ON DirectorRating(director_id, user_id);
 
 /* Test Inserts For Now */
 INSERT INTO StreamingService(name) VALUES
