@@ -10,6 +10,7 @@ def run_website():
 	static_folder = os.path.join(os.path.dirname(__file__), 'static')
 	print("using template folder %s" % template_folder)
 	print("using static folder %s" % static_folder)
+	database = db.Database()
 
 	app = Flask(__name__,
 		template_folder=template_folder,

@@ -6,10 +6,9 @@ class Database:
 		self.conn.row_factory = sqlite3.Row
 		self.conn.execute('PRAGMA foreign_keys = ON')
 		self.conn.commit()
+		print(self.getActors())
 
-	### Sample getUsers method
-	def getUsers(self):
-		users = self.conn.execute('SELECT * FROM users').fetchall()
-		return users
-
-
+	### Sample getActors method
+	def getActors(self):
+		actors = self.conn.execute('SELECT * FROM Actor').fetchall()
+		return actors
