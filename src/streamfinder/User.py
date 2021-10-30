@@ -7,7 +7,7 @@ class User:
     self.user_id = user_id
 
   def toDict(self):
-    result = self.database.conn.execute(f'SELECT * FROM User WHERE user_id = {self.user_id}').fetchone()
+    result = self.database.conn.execute(f'SELECT user_id, username FROM User WHERE user_id = {self.user_id}').fetchone()
     if result is None:
       return {}
     return dict(result)

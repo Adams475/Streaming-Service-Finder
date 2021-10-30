@@ -46,3 +46,23 @@ class Media:
   def setDirector(self, director):
     self.database.conn.execute(f'UPDATE Media SET director_id = {director.getId()} WHERE media_id = {self.media_id}')
     self.database.conn.commit()
+
+  def addRating(self, userID, score):
+    if score < 0:
+      score = 0
+    elif score > 100:
+      score = 100
+    self.database.conn.execute(f'INSERT INTO MediaRating(media_id, user_id, score) VALUES ({self.getId()}, {userID}, {score})')
+    self.database.conn.commit()
+
+  def updateRating(self, userID, score):
+    if score < 0:
+      score = 0
+    elif score > 100:
+      score = 100
+    self.database.conn.execute(f'UPDATE MediaRating SET score = {score} WHERE media_id = {self.getId()} AND user_id = {userID})')
+    self.database.conn.commit()
+
+  def deleteRating(self, userID):
+    self.database.conn.execute(f'DELETE FROM MediaRating WHERE media_id = {self.getId()} AND user_id = {userID}')
+    self.database.conn.commit()

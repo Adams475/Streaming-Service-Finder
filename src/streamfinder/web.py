@@ -26,11 +26,14 @@ def run_website():
 
     user = db.Database().getUser(int(userID))
 
-    return render_template('index.html', variable_from_python="Hello, " + user.getUsername() + "!")
+    return render_template_wrapper('index.html', variable_from_python="Hello, " + user.getUsername() + "!")
 
   @app.route('/auth', methods=['GET'])
   def auth():
-    return render_template('authentication.html')
+    userID = session.get('userID')
+    if userID is not None:
+      return redirect(url_for('index'))
+    return render_template_wrapper('authentication.html')
 
   @app.route('/auth/login', methods=['POST'])
   def login():
@@ -41,10 +44,10 @@ def run_website():
 
     if not userToLogin:
       # There is no account associated with this username
-      return render_template('authentication.html', status="There is no account associated with this username.")
+      return render_template_wrapper('authentication.html', status="There is no account associated with this username.")
     elif not check_password_hash(userToLogin.getHashedPassword(), password):
       # The entered password is incorrect.
-      return render_template('authentication.html', status="The password is incorrect.")
+      return render_template_wrapper('authentication.html', status="The password is incorrect.")
 
     # If the login is successful, go to main page:
     loggedInID = userToLogin.getId()
@@ -60,7 +63,7 @@ def run_website():
     # Check to see if a user already exists with this username
     possibleUser = database.searchUserByUsername(username)
     if possibleUser is not None:
-      return render_template('authentication.html', status="An account already exists with this username.")
+      return render_template_wrapper('authentication.html', status="An account already exists with this username.")
 
     # If no user exists, hash the password and create a new user.
     hashedPassword = generate_password_hash(password, method='sha256')
@@ -74,12 +77,16 @@ def run_website():
       session.pop('userID')
     return redirect(url_for('index'))
 
+  @app.route('/rate')
+  def rate():
+    return "hello"
+
   ### Example of handling GET request with variable passed through
   @app.route('/exampleGET/<multiplier>', methods=['GET'])
   def exampleGET(multiplier):
     num = request.args.get("number")
     adder = request.args.get("adder")
-    return render_template('index.html', variable_from_python=f"After multiplying by {multiplier} and adding {adder}, your result is: {int(num) * int(multiplier) + int(adder)}")
+    return render_template_wrapper('index.html', variable_from_python=f"After multiplying by {multiplier} and adding {adder}, your result is: {int(num) * int(multiplier) + int(adder)}")
 
 
   ### Example of handling POST request
@@ -87,6 +94,13 @@ def run_website():
   def examplePOST():
     firstName = request.form.get("firstName")
     lastName = request.form.get("lastName")
-    return render_template('index.html', variable_from_python="Your last name was: " + lastName)
+    return render_template_wrapper('index.html', variable_from_python="Your last name was: " + lastName)
+
+  def render_template_wrapper(*args, **kwargs):
+    userInfo = None
+    userID = session.get('userID')
+    if userID is not None:
+      userInfo = json.dumps(db.Database().getUser(userID).toDict())
+    return render_template(*args, userInfo=userInfo, **kwargs)
 
   app.run(host='0.0.0.0', port='8080', debug=True)

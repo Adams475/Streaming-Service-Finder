@@ -38,3 +38,23 @@ class Director:
   def setName(self, birthDate):
     self.database.conn.execute(f'UPDATE Director SET birthDate = {birthDate} WHERE director_id = {self.director_id}')
     self.database.conn.commit()
+
+  def addRating(self, userID, score):
+    if score < 0:
+      score = 0
+    elif score > 100:
+      score = 100
+    self.database.conn.execute(f'INSERT INTO DirectorRating(director_id, user_id, score) VALUES ({self.getId()}, {userID}, {score})')
+    self.database.conn.commit()
+
+  def updateRating(self, userID, score):
+    if score < 0:
+      score = 0
+    elif score > 100:
+      score = 100
+    self.database.conn.execute(f'UPDATE DirectorRating SET score = {score} WHERE director_id = {self.getId()} AND user_id = {userID})')
+    self.database.conn.commit()
+
+  def deleteRating(self, userID):
+    self.database.conn.execute(f'DELETE FROM DirectorRating WHERE director_id = {self.getId()} AND user_id = {userID}')
+    self.database.conn.commit()

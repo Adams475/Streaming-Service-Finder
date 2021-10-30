@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8">
     <title>StreamFinder - {% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/basePage.css') }}">
   </head>
 
   <body>
@@ -21,7 +21,6 @@
             var userID = "{{ session.get('userID') }}";
             window.sessionStorage.setItem('userID', userID);
             var UserInfo = JSON.parse(document.getElementById("userInfo").innerText);
-            UserInfo.id = userID;
             console.log(UserInfo);
           </script>
           <a href="{{ url_for('logout') }}" onclick="window.sessionStorage.removeItem('userID');">Logout</a>
