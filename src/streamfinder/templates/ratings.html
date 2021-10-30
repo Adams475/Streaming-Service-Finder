@@ -1,0 +1,152 @@
+{% extends "basePage.html" %}
+{% block title %} Ratings {% endblock %}
+{% block content %}
+
+<h1>Here are the ratings you've made!</h1>
+
+<div id="actorRatings">
+  <table id="actorRatingsTable">
+    <tr><th colspan="4">Your Actor Ratings</th></tr>
+    <tr><th>Name</th><th colspan="3">Score</th></tr>
+    {%for actor in ratings['actorRatings']%}
+    <tr>
+      <td>{{ actor['name'] }}</td>
+      <td id="actor{{ actor['actor_id'] }}score">{{ actor['score'] }}</td>
+      <td><button onclick="editRating('actor', `{{ actor['actor_id'] }}`);">Edit</button></td>
+      <td><button onclick="deleteRating('actor', `{{ actor['actor_id'] }}`);">Delete</button></td>
+    </tr>
+    {%endfor%}
+  </table>
+
+  <select id="actorDropdown">
+    {%for actor in actorsNotRated%}
+    <option value="{{actor.getId()}}">{{actor.getName()}}</option>
+    {%endfor%}
+  </select>
+  <button onclick="addRating('actor', document.getElementById('actorDropdown').value);">Rate Actor</button>
+
+</div><br>
+
+<div id="directorRatings">
+  <table id="directorRatingsTable">
+    <tr><th colspan="4">Your Director Ratings</th></tr>
+    <tr><th>Name</th><th colspan="3">Score</th></tr>
+    {%for director in ratings['directorRatings']%}
+    <tr>
+      <td>{{ director['name'] }}</td>
+      <td id="director{{ director['director_id'] }}score">{{ director['score'] }}</td>
+      <td><button onclick="editRating('director', `{{ director['director_id'] }}`);">Edit</button></td>
+      <td><button onclick="deleteRating('director', `{{ director['director_id'] }}`);">Delete</button></td>
+    </tr>
+    {%endfor%}
+  </table>
+
+  <select id="directorDropdown">
+    {%for director in directorsNotRated%}
+    <option value="{{director.getId()}}">{{director.getName()}}</option>
+    {%endfor%}
+  </select>
+  <button onclick="addRating('director', document.getElementById('directorDropdown').value);">Rate Director</button>
+
+</div><br>
+
+<div id="mediaRatings">
+  <table id="mediaRatingsTable">
+    <tr><th colspan="4">Your Media Ratings</th></tr>
+    <tr><th>Name</th><th colspan="3">Score</th></tr>
+    {%for media in ratings['mediaRatings']%}
+    <tr>
+      <td>{{ media['name'] }}</td>
+      <td id="media{{ media['media_id'] }}score">{{ media['score'] }}</td>
+      <td><button onclick="editRating('media', `{{ media['media_id'] }}`);">Edit</button></td>
+      <td><button onclick="deleteRating('media', `{{ media['media_id'] }}`);">Delete</button></td>
+    </tr>
+    {%endfor%}
+  </table>
+
+  <select id="mediaDropdown">
+    {%for media in mediasNotRated%}
+    <option value="{{media.getId()}}">{{media.getName()}}</option>
+    {%endfor%}
+  </select>
+  <button onclick="addRating('media', document.getElementById('mediaDropdown').value);">Rate Media</button>
+
+</div><br>
+
+
+
+<script>
+
+  function promptForRating() {
+    value = "";
+    while (value == "" || isNaN(value) || value < 0 || value > 100) {
+      value = prompt("Enter a number between 0 and 100.");
+      if (value == null) break;
+    }
+    return value;
+  }
+
+  function addRating(type, entityID) {
+
+    if (entityID == "") return;
+    value = promptForRating();
+    if (value == null) return;
+
+    data = { type: type, entity_id: entityID, newRating: value };
+    fetch(`{{ url_for('addRating') }}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    }).then(response => response.json())
+      .then(response => {
+        if (response == 200) {
+          alert("Score added successfully.");
+          window.location.reload(false);
+        }
+      })
+      .catch(error => alert(`Request failed: Error: ${error}`));
+  }
+
+  function editRating(type, entityID) {
+    value = promptForRating();
+    if (value == null) return;
+    data = { type: type, entity_id: entityID, newRating: value };
+    fetch(`{{ url_for('editRating') }}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    }).then(response => response.json())
+      .then(response => {
+        if (response == 200) {
+          alert("Score updated successfully.");
+          document.getElementById(`${type}${entityID}score`).innerText = value;
+        }
+      })
+      .catch(error => alert(`Request failed: Error: ${error}`));
+  }
+
+  function deleteRating(type, entityID) {
+      if (!confirm("Are you sure you want to delete this rating?")) return;
+      data = { type: type, entity_id: entityID };
+      fetch(`{{ url_for('deleteRating') }}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      }).then(response => response.json())
+        .then(response => {
+          if (response == 200) {
+            alert("Score deleted successfully.");
+            window.location.reload(false);
+          }
+        })
+        .catch(error => alert(`Request failed: Error: ${error}`));
+    }
+</script>
+
+{% endblock %}

@@ -52,7 +52,7 @@ class Director:
       score = 0
     elif score > 100:
       score = 100
-    self.database.conn.execute(f'UPDATE DirectorRating SET score = {score} WHERE director_id = {self.getId()} AND user_id = {userID})')
+    self.database.conn.execute(f'UPDATE DirectorRating SET score = {score} WHERE director_id = {self.getId()} AND user_id = {userID}')
     self.database.conn.commit()
 
   def deleteRating(self, userID):

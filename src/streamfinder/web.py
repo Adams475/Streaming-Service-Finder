@@ -18,16 +18,17 @@ def run_website():
 
   app.config['SECRET_KEY'] = "It's a secret to everybody..."
 
+  ### Main Page ###
   @app.route('/')
   def index():
     userID = session.get('userID')
     if userID is None:
-      return redirect(url_for('auth'))
+       return render_template_wrapper('index.html', variable_from_python="Hello, anonymous user!")
 
     user = db.Database().getUser(int(userID))
-
     return render_template_wrapper('index.html', variable_from_python="Hello, " + user.getUsername() + "!")
 
+  ### Login / Register Page ###
   @app.route('/auth', methods=['GET'])
   def auth():
     userID = session.get('userID')
@@ -35,6 +36,7 @@ def run_website():
       return redirect(url_for('index'))
     return render_template_wrapper('authentication.html')
 
+  ### Handle Login Request ###
   @app.route('/auth/login', methods=['POST'])
   def login():
     database = db.Database()
@@ -54,6 +56,7 @@ def run_website():
     session['userID'] = loggedInID
     return redirect(url_for('index'))
 
+  ### Handle Register Request ###
   @app.route('/auth/register', methods=['POST'])
   def register():
     database = db.Database()
@@ -71,15 +74,92 @@ def run_website():
     session['userID'] = user.getId()
     return redirect(url_for('index'))
 
+  ### Handle Logout Request ###
   @app.route('/auth/logout', methods=['GET'])
   def logout():
     if 'userID' in session:
       session.pop('userID')
     return redirect(url_for('index'))
 
-  @app.route('/rate')
-  def rate():
-    return "hello"
+  @app.route('/rate', methods=['GET'])
+  def viewRatings():
+    userID = session.get('userID')
+    if userID is None:
+      return redirect(url_for('auth'))
+
+    user = db.Database().getUser(int(userID))
+    ratings = user.getRatings()
+
+    return render_template_wrapper('ratings.html', ratings=ratings,
+                                    actorsNotRated=user.getActorsNotRated(),
+                                    directorsNotRated=user.getDirectorsNotRated(),
+                                    mediasNotRated=user.getMediasNotRated())
+
+  @app.route('/rate/add', methods=['POST'])
+  def addRating():
+    userID = session.get('userID')
+    if userID is None:
+      return redirect(url_for('auth'))
+
+    type = request.json.get("type")
+    entity_id = int(request.json.get("entity_id"))
+    newRating = int(request.json.get("newRating"))
+    if type == 'actor':
+      actor = db.Database().getActor(entity_id)
+      actor.addRating(int(userID), newRating)
+    elif type == 'director':
+      director = db.Database().getDirector(entity_id)
+      director.addRating(int(userID), newRating)
+    elif type == 'media':
+      media = db.Database().getMedia(entity_id)
+      media.addRating(int(userID), newRating)
+    else:
+      return "Invalid request!"
+    return "200"
+
+  @app.route('/rate/edit', methods=['POST'])
+  def editRating():
+    userID = session.get('userID')
+    if userID is None:
+      return redirect(url_for('auth'))
+
+    type = request.json.get("type")
+    entity_id = int(request.json.get("entity_id"))
+    newRating = int(request.json.get("newRating"))
+    if type == 'actor':
+      actor = db.Database().getActor(entity_id)
+      actor.updateRating(int(userID), newRating)
+    elif type == 'director':
+      director = db.Database().getDirector(entity_id)
+      director.updateRating(int(userID), newRating)
+    elif type == 'media':
+      media = db.Database().getMedia(entity_id)
+      media.updateRating(int(userID), newRating)
+    else:
+      return "Invalid request!"
+    return "200"
+
+  @app.route('/rate/delete', methods=['POST'])
+  def deleteRating():
+    userID = session.get('userID')
+    if userID is None:
+      return redirect(url_for('auth'))
+
+    type = request.json.get("type")
+    entity_id = int(request.json.get("entity_id"))
+    if type == 'actor':
+      actor = db.Database().getActor(entity_id)
+      actor.deleteRating(int(userID))
+    elif type == 'director':
+      director = db.Database().getDirector(entity_id)
+      director.deleteRating(int(userID))
+    elif type == 'media':
+      media = db.Database().getMedia(entity_id)
+      media.deleteRating(int(userID))
+    else:
+      return "Invalid request!"
+    return "200"
+
 
   ### Example of handling GET request with variable passed through
   @app.route('/exampleGET/<multiplier>', methods=['GET'])
@@ -87,7 +167,6 @@ def run_website():
     num = request.args.get("number")
     adder = request.args.get("adder")
     return render_template_wrapper('index.html', variable_from_python=f"After multiplying by {multiplier} and adding {adder}, your result is: {int(num) * int(multiplier) + int(adder)}")
-
 
   ### Example of handling POST request
   @app.route('/examplePOST', methods=['POST'])

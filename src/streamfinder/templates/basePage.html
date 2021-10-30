@@ -14,6 +14,11 @@
         <div class='HeaderItem'>
           <a href="{{ url_for('index') }}">Main Page</a>
         </div>
+        {% if 'userID' in session %}
+        <div class='HeaderItem'>
+          <a href="{{ url_for('viewRatings') }}">View Ratings</a>
+        </div>
+        {% endif %}
         <div class='HeaderItem'>
           {% if 'userID' in session %}
           <p id="userInfo" style="display: none;">{{ userInfo }}</p>
