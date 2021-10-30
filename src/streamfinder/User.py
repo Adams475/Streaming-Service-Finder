@@ -6,11 +6,11 @@ class User:
     self.database = database
     self.user_id = user_id
 
-  def serialize(self):
+  def toDict(self):
     result = self.database.conn.execute(f'SELECT * FROM User WHERE user_id = {self.user_id}').fetchone()
     if result is None:
       return {}
-    return json.dumps(dict(result))
+    return dict(result)
 
   def getId(self):
     return self.user_id

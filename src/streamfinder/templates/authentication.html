@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %} Authentication {% endblock %}
+{% block content %}
+
+    <p id="userInfo" style="display: none;">{{ userInfo }}</p>
+
+    <b><p id="statusText" style="display: none;">{{ status }}</p></b>
+
+    <div id="loginSection">
+
+      <h1>Login</h1>
+
+      <form method="POST" action="{{ url_for('login') }}">
+        <label for="username">Username: </label>
+        <input type="text" name="username"><br><br>
+        <label for="password">Password: </label>
+        <input type="password" name="password"><br><br>
+        <input type="submit" value="Login">
+      </form>
+
+      <p>Don't have an account? <a href="#" onclick="switchToRegisterPage();">Sign up here!</a></p>
+
+      <script>
+        function switchToRegisterPage() {
+          document.getElementById("loginSection").style.display = "none";
+          document.getElementById("registerSection").style.display = "block";
+          sessionStorage.setItem("authSection", "register");
+        }
+      </script>
+
+    </div>
+
+    <div id="registerSection" style="display:none;">
+
+      <h1>Register</h1>
+
+      <form method="POST" action="{{ url_for('register') }}" oninput="checkRegisterForm()">
+        <label for="username">Username: </label>
+        <input type="text" id="usernameField" name="username"><br><br>
+        <label for="password">Password: </label>
+        <input type="password" name="password" id="passwordField"><br><br>
+        <input type="submit" id="RegisterButton" value="Register" disabled>
+      </form>
+
+      <p>Already have an account? <a href="#" onclick="switchToLoginPage();">Login here!</a></p>
+
+      <script>
+        function checkRegisterForm() {
+          if (document.getElementById("usernameField").value != "" && document.getElementById("passwordField").value != "") {
+            document.getElementById("RegisterButton").disabled = false;
+          } else {
+            document.getElementById("RegisterButton").disabled = true;
+          }
+        }
+
+        function switchToLoginPage() {
+          document.getElementById("loginSection").style.display = "block";
+          document.getElementById("registerSection").style.display = "none";
+          sessionStorage.setItem("authSection", "login");
+        }
+      </script>
+
+    </div>
+
+
+
+    <script>
+      let p = document.getElementById("statusText");
+      if (p.innerText !== "") {
+        p.style.display = "block";
+      }
+
+      lastSection = sessionStorage.getItem("authSection")
+      if (lastSection == null) {
+        sessionStorage.setItem("authSection", "login");
+      } else {
+        switch (lastSection) {
+          case "login":
+            switchToLoginPage();
+            break;
+          case "register":
+            switchToRegisterPage();
+            break;
+        }
+      }
+    </script>
+
+{% endblock %}

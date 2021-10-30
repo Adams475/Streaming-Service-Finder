@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS User(
   username TEXT NOT NULL,
   hashedPassword TEXT NOT NULL
 );
+CREATE UNIQUE INDEX User_Index ON User(username);
 
 CREATE TABLE IF NOT EXISTS Media(
   media_id INTEGER PRIMARY KEY NOT NULL,

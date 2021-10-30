@@ -6,11 +6,11 @@ class Media:
     self.database = database
     self.media_id = media_id
 
-  def serialize(self):
+  def toDict(self):
     result = self.database.conn.execute(f'SELECT * FROM Media WHERE media_id = {self.media_id}').fetchone()
     if result is None:
       return {}
-    return json.dumps(dict(result))
+    return dict(result)
 
   def getId(self):
     return self.media_id

@@ -6,11 +6,11 @@ class Genre:
     self.database = database
     self.genre_id = genre_id
 
-  def serialize(self):
+  def toDict(self):
     result = self.database.conn.execute(f'SELECT * FROM Genre WHERE genre_id = {self.genre_id}').fetchone()
     if result is None:
       return {}
-    return json.dumps(dict(result))
+    return dict(result)
 
   def getId(self):
     return self.genre_id

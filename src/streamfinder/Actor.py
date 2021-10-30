@@ -6,11 +6,11 @@ class Actor:
     self.database = database
     self.actor_id = actor_id
 
-  def serialize(self):
+  def toDict(self):
     result = self.database.conn.execute(f'SELECT * FROM Actor WHERE actor_id = {self.actor_id}').fetchone()
     if result is None:
       return {}
-    return json.dumps(dict(result))
+    return dict(result)
 
   def getId(self):
     return self.actor_id

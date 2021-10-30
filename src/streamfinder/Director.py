@@ -6,11 +6,11 @@ class Director:
     self.database = database
     self.director_id = director_id
 
-  def serialize(self):
+  def toDict(self):
     result = self.database.conn.execute(f'SELECT * FROM Director WHERE director_id = {self.director_id}').fetchone()
     if result is None:
       return {}
-    return json.dumps(dict(result))
+    return dict(result)
 
   def getId(self):
     return self.director_id

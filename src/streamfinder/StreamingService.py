@@ -6,11 +6,11 @@ class StreamingService:
     self.database = database
     self.ss_id = ss_id
 
-  def serialize(self):
+  def toDict(self):
     result = self.database.conn.execute(f'SELECT * FROM StreamingService WHERE ss_id = {self.ss_id}').fetchone()
     if result is None:
       return {}
-    return json.dumps(dict(result))
+    return dict(result)
 
   def getId(self):
     return self.ss_id

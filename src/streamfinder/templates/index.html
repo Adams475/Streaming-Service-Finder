@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>Stream Finder</title>
-		<meta charset="utf-8"/>
-		<meta lang="en"/>
-	</head>
-	<body>
+{% extends "base.html" %}
+{% block title %} Main Page {% endblock %}
+{% block content %}
 
 		<h1>Variable from Python:</h1>
 		<p>{{ variable_from_python }}</p>
@@ -37,5 +32,4 @@
 			</form>
 		</div>
 
-	</body>
-</html>
+{% endblock %}

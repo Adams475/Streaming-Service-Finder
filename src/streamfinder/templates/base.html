@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>StreamFinder - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  </head>
+
+  <body>
+    <div id='HeaderAndBodyWrapper'>
+      {% block header %}
+      <div id='Header'>
+        <div class='HeaderItem'>
+          <a href="{{ url_for('index') }}">Main Page</a>
+        </div>
+        <div class='HeaderItem'>
+          {% if 'userID' in session %}
+          <p id="userInfo" style="display: none;">{{ userInfo }}</p>
+          <script>
+            var userID = "{{ session.get('userID') }}";
+            window.sessionStorage.setItem('userID', userID);
+            var UserInfo = JSON.parse(document.getElementById("userInfo").innerText);
+            UserInfo.id = userID;
+            console.log(UserInfo);
+          </script>
+          <a href="{{ url_for('logout') }}" onclick="window.sessionStorage.removeItem('userID');">Logout</a>
+          {% else %}
+          <script>
+            var userID = null;
+            window.sessionStorage.removeItem('userID');
+            var UserInfo = { "id": userID };
+            console.log(UserInfo);
+          </script>
+          <a href="{{ url_for('auth') }}">Login</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endblock %}
+
+      <div id='Body'>
+        {% block content %}
+
+        {% endblock %}
+      </div>
+    </div>
+
+    {% block footer %}
+    <div id='Footer'>
+      <div id='FooterContent'>
+        <p>Fall 2021 CS 34800 Project by Noah Adams, Priyanka Jain, Inbang Seo, and Colston Streit</p>
+      </div>
+    </div>
+    {% endblock %}
+  </body>
+
+</html>
