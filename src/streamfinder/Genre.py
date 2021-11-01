@@ -30,3 +30,10 @@ class Genre:
   def setDescription(self, description):
     self.database.conn.execute(f'UPDATE Genre SET description = "{description}" WHERE genre_id = {self.genre_id}')
     self.database.conn.commit()
+
+  def getCorrespondingMedia(self):
+    medias = self.database.conn.execute(f'SELECT * FROM Media WHERE genre_id = {self.genre_id}')
+    result = []
+    for media in medias:
+      result.append(self.database.getMedia(media['media_id']))
+    return result

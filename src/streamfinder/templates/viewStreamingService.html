@@ -1,0 +1,81 @@
+{% extends "basePage.html" %}
+{% block title %} {{ service.getName() }} {% endblock %}
+{% block content %}
+
+<b><p id="statusText" style="display: none;">{{ status }}</p></b>
+
+<h1>View/Edit Streaming Service</h1>
+
+<div id="streamingServiceList">
+    {%for service in streamingServices%}
+    <span>{{ service.getName() }}</span><br>
+    {%endfor%}
+</div>
+
+<div id="addStreamingService">
+  <form id="streamingServiceForm" method="POST" action="{{ url_for('viewAndUpdateStreamingService', ss_id=service.getId()) }}"
+    onsubmit="return submitStreamingService();">
+    <label for="name">Name: </label>
+    <input type="text" id="streamingServiceName" name="name" value="{{ service.getName() }}" required><br><br>
+
+    <table id="mediaListTable">
+      <tr><th colspan="5">Available Media</th></tr>
+      <tr><th>Name</th><th>Release Year</th><th>Genre</th><th>Director</th><th>Mark Unavailable</th></tr>
+      {%for media in service.getCorrespondingMedia()%}
+      <tr>
+        <td>{{ media.getName() }}</td>
+        <td>{{ media.getReleaseYear() }}</td>
+        <td>{{ media.getGenre().getName() }}</td>
+        <td>{{ media.getDirector().getName() }}</td>
+        <td><button onclick="makeUnavailable(`{{ media.getId() }}`, `{{ service.getId() }}`)">Mark Unavailable</button></td>
+      </tr>
+      {%endfor%}
+    </table><br>
+
+    <input type="submit" value="Submit">
+  </form>
+</div>
+
+<script>
+
+  let p = document.getElementById("statusText");
+  if (p.innerText !== "") {
+    p.style.display = "block";
+  }
+
+  function toTitleCase(name) {
+    return name.replace(/([^\W_]+[^\s-]*) */g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+  }
+
+  function submitStreamingService() {
+    let name = document.forms["streamingServiceForm"]["name"].value.trim();
+    name = toTitleCase(name);
+    document.forms["streamingServiceForm"]["name"].value = name;
+    if (name == "") {
+      alert("Name cannot be empty!");
+      return false;
+    }
+    return true;
+  }
+
+  function makeUnavailable(mediaId, serviceId) {
+    if (!confirm("Are you sure you want to delete this rating?")) return;
+    data = {"type": "viewable", mediaId: mediaId, serviceId: serviceId};
+    fetch(`{{ url_for('deleteEntity') }}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    }).then(response => response.json())
+      .then(response => {
+        if (response == 200) {
+          alert("Successfully deleted from availability list.");
+          window.location.reload(false);
+        }
+      })
+      .catch(error => alert(`Request failed: Error: ${error}`));
+  }
+</script>
+
+{% endblock %}

@@ -1,5 +1,5 @@
 {% extends "basePage.html" %}
-{% block title %} View Genre - "{{ genre.getName() }}" {% endblock %}
+{% block title %} {{ genre.getName() }} {% endblock %}
 {% block content %}
 
 <h1>View/Edit Genre</h1>
@@ -9,6 +9,19 @@
   <input type="text" id="genreName" name="name" required value="{{ genre.getName() }}"><br><br>
   <label for="description">Description: </label>
   <textarea id="genreDescription" name="description">{{ genre.getDescription() }}</textarea><br><br>
+
+  <table id="mediaListTable">
+    <tr><th colspan="3">Corresponding Media</th></tr>
+    <tr><th>Name</th><th>Release Year</th><th>Director</th></tr>
+    {%for media in genre.getCorrespondingMedia()%}
+    <tr>
+      <td>{{ media.getName() }}</td>
+      <td>{{ media.getReleaseYear() }}</td>
+      <td>{{ media.getDirector().getName() }}</td>
+    </tr>
+    {%endfor%}
+  </table><br>
+
   <input type="submit" value="Update Genre">
 </form>
 

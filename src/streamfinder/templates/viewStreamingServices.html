@@ -8,7 +8,7 @@
 
 <div id="streamingServiceList">
     {%for service in streamingServices%}
-    <span>{{ service.getName() }}</span><br>
+    <span><a href="{{ url_for('viewAndUpdateStreamingService', ss_id=service.getId()) }}">{{ service.getName() }}</a></span><br>
     {%endfor%}
 </div>
 

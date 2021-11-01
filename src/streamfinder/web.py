@@ -286,7 +286,7 @@ def run_website():
     medias = db.Database().getAllMedias()
     return render_template_wrapper('viewMedias.html', medias=medias, status=status)
 
-  ### View Certain Genre ###
+  ### View/Edit Certain Genre ###
   @app.route('/view/genre/<genre_id>', methods=["GET", "POST"])
   def viewAndUpdateGenre(genre_id):
     genre = db.Database().getGenre(genre_id)
@@ -302,6 +302,39 @@ def run_website():
       genre.setDescription(request.form.get('description'))
       return redirect(url_for('viewAndUpdateGenre', genre_id=genre_id))
 
+  ### View/Edit Certain Streaming Service ###
+  @app.route('/view/streamingService/<ss_id>', methods=["GET", "POST"])
+  def viewAndUpdateStreamingService(ss_id):
+    service = db.Database().getStreamingService(ss_id)
+    if service is None:
+      return redirect(url_for('viewStreamingServices', status="Invalid streaming service id!"))
+    if request.method == "GET":
+      return render_template_wrapper('viewStreamingService.html', service=service)
+    else:
+      userID = session.get('userID')
+      if userID is None:
+        return redirect(url_for('auth'))
+      service.setName(request.form.get('name'))
+      return redirect(url_for('viewAndUpdateStreamingService', ss_id=ss_id))
+
+  ### Delete entity (viewable, etc.) ###
+  @app.route("/deleteEntity", methods=["POST"])
+  def deleteEntity():
+    userID = session.get('userID')
+    if userID is None:
+      return redirect(url_for('auth'))
+    database = db.Database()
+
+    type = request.json.get("type")
+    if type == "viewable":
+      media = database.getMedia(int(request.json.get("mediaId")))
+      service = database.getStreamingService(int(request.json.get("serviceId")))
+      if media is None or service is None:
+        return redirect(url_for('viewStreamingServices', status="Invalid media or service!"))
+      service.makeUnavailable(media)
+      return "200"
+
+  ### Wrapper for render_template so that user information is always passed through ###
   def render_template_wrapper(*args, **kwargs):
     userInfo = None
     userID = session.get('userID')

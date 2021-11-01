@@ -23,4 +23,15 @@ class StreamingService:
     self.database.conn.execute(f'UPDATE StreamingService SET name = "{name}" WHERE ss_id = {self.ss_id}')
     self.database.conn.commit()
 
+  def getCorrespondingMedia(self):
+    medias = self.database.conn.execute(f'SELECT media_id FROM ViewableOn WHERE ss_id = {self.ss_id}')
+    result = []
+    for media in medias:
+      result.append(self.database.getMedia(media['media_id']))
+    return result
+
+  def makeUnavailable(self, media):
+    self.database.conn.execute(f'DELETE FROM ViewableOn WHERE ss_id = {self.ss_id} AND media_id = {media.getId()}')
+    self.database.conn.commit()
+
 
