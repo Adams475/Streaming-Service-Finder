@@ -14,6 +14,21 @@
         <div class='HeaderItem'>
           <a href="{{ url_for('index') }}">Main Page</a>
         </div>
+        <div class='HeaderItem'>
+          <a href="{{ url_for('viewMedias') }}">Media</a>
+        </div>
+        <div class='HeaderItem'>
+          <a href="{{ url_for('viewActors') }}">Actors</a>
+        </div>
+        <div class='HeaderItem'>
+          <a href="{{ url_for('viewDirectors') }}">Directors</a>
+        </div>
+        <div class='HeaderItem'>
+          <a href="{{ url_for('viewGenres') }}">Genres</a>
+        </div>
+        <div class='HeaderItem'>
+          <a href="{{ url_for('viewStreamingServices') }}">Streaming Services</a>
+        </div>
         {% if 'userID' in session %}
         <div class='HeaderItem'>
           <a href="{{ url_for('viewRatings') }}">View Ratings</a>

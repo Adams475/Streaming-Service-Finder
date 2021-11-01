@@ -20,7 +20,7 @@ class StreamingService:
     return result['name']
 
   def setName(self, name):
-    self.database.conn.execute(f'UPDATE StreamingService SET name = {name} WHERE ss_id = {self.ss_id}')
+    self.database.conn.execute(f'UPDATE StreamingService SET name = "{name}" WHERE ss_id = {self.ss_id}')
     self.database.conn.commit()
 
 

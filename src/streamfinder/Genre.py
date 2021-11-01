@@ -20,7 +20,7 @@ class Genre:
     return result['name']
 
   def setName(self, name):
-    self.database.conn.execute(f'UPDATE Genre SET name = {name} WHERE genre_id = {self.genre_id}')
+    self.database.conn.execute(f'UPDATE Genre SET name = "{name}" WHERE genre_id = {self.genre_id}')
     self.database.conn.commit()
 
   def getDescription(self):
@@ -28,5 +28,5 @@ class Genre:
     return result['description']
 
   def setDescription(self, description):
-    self.database.conn.execute(f'UPDATE Genre SET description = {description} WHERE genre_id = {self.genre_id}')
+    self.database.conn.execute(f'UPDATE Genre SET description = "{description}" WHERE genre_id = {self.genre_id}')
     self.database.conn.commit()

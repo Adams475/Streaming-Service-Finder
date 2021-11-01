@@ -1,0 +1,53 @@
+{% extends "basePage.html" %}
+{% block title %} Streaming Services {% endblock %}
+{% block content %}
+
+<b><p id="statusText" style="display: none;">{{ status }}</p></b>
+
+<h1>Streaming Services</h1>
+
+<div id="streamingServiceList">
+    {%for service in streamingServices%}
+    <span>{{ service.getName() }}</span><br>
+    {%endfor%}
+</div>
+
+{% if 'userID' in session %}
+
+<div id="addStreamingService">
+  <h2>Add a New Streaming Service:</h2>
+
+  <form id="streamingServiceForm" method="POST" action="{{ url_for('submitStreamingService') }}"
+    onsubmit="return submitStreamingService();">
+    <label for="name">Name: </label>
+    <input type="text" id="streamingServiceName" name="name" required><br><br>
+    <input type="submit" value="Submit">
+  </form>
+</div>
+
+<script>
+
+  let p = document.getElementById("statusText");
+  if (p.innerText !== "") {
+    p.style.display = "block";
+  }
+
+  function toTitleCase(name) {
+    return name.replace(/([^\W_]+[^\s-]*) */g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+  }
+
+  function submitStreamingService() {
+    let name = document.forms["streamingServiceForm"]["name"].value.trim();
+    name = toTitleCase(name);
+    document.forms["streamingServiceForm"]["name"].value = name;
+    if (name == "") {
+      alert("Name cannot be empty!");
+      return false;
+    }
+    return true;
+  }
+</script>
+
+{% endif %}
+
+{% endblock %}

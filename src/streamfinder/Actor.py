@@ -20,7 +20,7 @@ class Actor:
     return result['name']
 
   def setName(self, name):
-    self.database.conn.execute(f'UPDATE Actor SET name = {name} WHERE actor_id = {self.actor_id}')
+    self.database.conn.execute(f'UPDATE Actor SET name = "{name}" WHERE actor_id = {self.actor_id}')
     self.database.conn.commit()
 
   def getSex(self):
@@ -28,7 +28,7 @@ class Actor:
     return result['sex']
 
   def setSex(self, sex):
-    self.database.conn.execute(f'UPDATE Actor SET sex = {sex} WHERE actor_id = {self.actor_id}')
+    self.database.conn.execute(f'UPDATE Actor SET sex = "{sex}" WHERE actor_id = {self.actor_id}')
     self.database.conn.commit()
 
   def getBirthDate(self):
@@ -36,7 +36,7 @@ class Actor:
     return result['birthDate']
 
   def setName(self, birthDate):
-    self.database.conn.execute(f'UPDATE Actor SET birthDate = {birthDate} WHERE actor_id = {self.actor_id}')
+    self.database.conn.execute(f'UPDATE Actor SET birthDate = "{birthDate}" WHERE actor_id = {self.actor_id}')
     self.database.conn.commit()
 
   def addRating(self, userID, score):

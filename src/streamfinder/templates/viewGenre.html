@@ -1,0 +1,18 @@
+{% extends "basePage.html" %}
+{% block title %} View Genre - "{{ genre.getName() }}" {% endblock %}
+{% block content %}
+
+<h1>View/Edit Genre</h1>
+
+<form id="genreForm" method="POST" action="{{ url_for('viewAndUpdateGenre', genre_id=genre.getId()) }}" onsubmit="return submitGenre();">
+  <label for="name">Name: </label>
+  <input type="text" id="genreName" name="name" required value="{{ genre.getName() }}"><br><br>
+  <label for="description">Description: </label>
+  <textarea id="genreDescription" name="description">{{ genre.getDescription() }}</textarea><br><br>
+  <input type="submit" value="Update Genre">
+</form>
+
+
+
+
+{% endblock %}

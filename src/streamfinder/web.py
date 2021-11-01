@@ -1,4 +1,4 @@
-import os, json
+import os, json, datetime
 from flask import Flask, render_template, request, url_for, redirect, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -81,6 +81,7 @@ def run_website():
       session.pop('userID')
     return redirect(url_for('index'))
 
+  ### View Ratings Page ###
   @app.route('/rate', methods=['GET'])
   def viewRatings():
     userID = session.get('userID')
@@ -95,6 +96,7 @@ def run_website():
                                     directorsNotRated=user.getDirectorsNotRated(),
                                     mediasNotRated=user.getMediasNotRated())
 
+  ### Handle request to add a rating ###
   @app.route('/rate/add', methods=['POST'])
   def addRating():
     userID = session.get('userID')
@@ -117,6 +119,7 @@ def run_website():
       return "Invalid request!"
     return "200"
 
+  ### Handle request to edit a rating ###
   @app.route('/rate/edit', methods=['POST'])
   def editRating():
     userID = session.get('userID')
@@ -139,6 +142,7 @@ def run_website():
       return "Invalid request!"
     return "200"
 
+  ### Handle request to delete a rating ###
   @app.route('/rate/delete', methods=['POST'])
   def deleteRating():
     userID = session.get('userID')
@@ -160,20 +164,143 @@ def run_website():
       return "Invalid request!"
     return "200"
 
+  ### Handle request to submit a new genre ###
+  @app.route('/addEntity/genre', methods=["POST"])
+  def submitGenre():
+    userID = session.get('userID')
+    if userID is None:
+      return redirect(url_for('auth'))
 
-  ### Example of handling GET request with variable passed through
-  @app.route('/exampleGET/<multiplier>', methods=['GET'])
-  def exampleGET(multiplier):
-    num = request.args.get("number")
-    adder = request.args.get("adder")
-    return render_template_wrapper('index.html', variable_from_python=f"After multiplying by {multiplier} and adding {adder}, your result is: {int(num) * int(multiplier) + int(adder)}")
+    database = db.Database()
+    name = request.form.get("name")
+    existingGenreList = database.getGenreByName(name)
+    if len(existingGenreList) > 0:
+      return redirect(url_for('viewGenres', status=f'The genre "{name}" already exists!'))
+    description = request.form.get("description")
+    database.createGenre(name, description)
+    return redirect(url_for('viewGenres', status=f'Genre "{name}" successfully added!'))
 
-  ### Example of handling POST request
-  @app.route('/examplePOST', methods=['POST'])
-  def examplePOST():
-    firstName = request.form.get("firstName")
-    lastName = request.form.get("lastName")
-    return render_template_wrapper('index.html', variable_from_python="Your last name was: " + lastName)
+  ### Handle request to submit a new actor ###
+  @app.route('/addEntity/actor', methods=["POST"])
+  def submitActor():
+    userID = session.get('userID')
+    if userID is None:
+      return redirect(url_for('auth'))
+
+    database = db.Database()
+    name = request.form.get("name")
+    existingActorList = database.getActorByName(name)
+    if len(existingActorList) > 0:
+      return redirect(url_for('viewActors'), status=f'The actor "{name}" already exists!')
+    sex = request.form.get("sex")
+    birthDay = request.form.get("day")
+    birthMonth = request.form.get("month")
+    birthYear = request.form.get("year")
+    birthDate = ''
+    if birthYear == "":
+      birthDate = "?"
+    else:
+      try:
+        birthDate = datetime.date(year=int(birthYear), month=int(birthMonth), day=int(birthDay))
+        birthDate = birthDate.isoformat()
+      except ValueError:
+        return redirect(url_for('viewActors', status=f'Invalid date of birth!'))
+    database.createActor(name, sex, birthDate)
+    return redirect(url_for('viewActors', status=f'Actor "{name}" successfully added!'))
+
+  ### Handle request to submit a new director ###
+  @app.route('/addEntity/director', methods=["POST"])
+  def submitDirector():
+    userID = session.get('userID')
+    if userID is None:
+      return redirect(url_for('auth'))
+
+    database = db.Database()
+    name = request.form.get("name")
+    existingDirectorList = database.getDirectorByName(name)
+    if len(existingDirectorList) > 0:
+      return redirect(url_for('viewDirectors', status=f'The director "{name}" already exists!'))
+    sex = request.form.get("sex")
+    birthDay = request.form.get("day")
+    birthMonth = request.form.get("month")
+    birthYear = request.form.get("year")
+    birthDate = ''
+    if birthYear == "":
+      birthDate = "?"
+    else:
+      try:
+        birthDate = datetime.date(year=int(birthYear), month=int(birthMonth), day=int(birthDay))
+        birthDate = birthDate.isoformat()
+      except ValueError:
+        return redirect(url_for('viewDirectors', status=f'Invalid date of birth!'))
+    database.createDirector(name, sex, birthDate)
+    return redirect(url_for('viewDirectors', status=f'Director "{name}" successfully added!'))
+
+  ### Handle request to submit a new streaming service ###
+  @app.route('/addEntity/streamingService', methods=["POST"])
+  def submitStreamingService():
+    userID = session.get('userID')
+    if userID is None:
+      return redirect(url_for('auth'))
+
+    database = db.Database()
+    name = request.form.get("name")
+    existingServiceList = database.getStreamingServiceByName(name)
+    if len(existingServiceList) > 0:
+      return redirect(url_for('viewStreamingServices', status=f'The streaming service "{name}" already exists!'))
+    database.createStreamingService(name)
+    return redirect(url_for('viewStreamingServices', status=f'Streaming Service "{name}" successfully added!'))
+
+  ### View All Genres ###
+  @app.route('/view/genre', methods=["GET"])
+  def viewGenres():
+    status = request.args.get('status') or ""
+    genres = db.Database().getAllGenres()
+    return render_template_wrapper('viewGenres.html', genres=genres, status=status)
+
+  ### View All Streaming Services ###
+  @app.route('/view/streamingService', methods=["GET"])
+  def viewStreamingServices():
+    status = request.args.get('status') or ""
+    services = db.Database().getAllStreamingServices()
+    return render_template_wrapper('viewStreamingServices.html', streamingServices=services, status=status)
+
+  ### View All Actors ###
+  @app.route('/view/actor', methods=["GET"])
+  def viewActors():
+    status = request.args.get('status') or ""
+    actors = db.Database().getAllActors()
+    return render_template_wrapper('viewActors.html', actors=actors, status=status)
+
+  ### View All Directors ###
+  @app.route('/view/director', methods=["GET"])
+  def viewDirectors():
+    status = request.args.get('status') or ""
+    directors = db.Database().getAllDirectors()
+    return render_template_wrapper('viewDirectors.html', directors=directors, status=status)
+
+  ### View All Media ###
+  @app.route('/view/media', methods=["GET"])
+  def viewMedias():
+    status = request.args.get('status') or ""
+    medias = db.Database().getAllMedias()
+    return render_template_wrapper('viewMedias.html', medias=medias, status=status)
+
+  ### View Certain Genre ###
+  @app.route('/view/genre/<genre_id>', methods=["GET", "POST"])
+  def viewAndUpdateGenre(genre_id):
+    genre = db.Database().getGenre(genre_id)
+    if genre is None:
+      return redirect(url_for('viewGenres', status="Invalid genre id!"))
+    if request.method == "GET":
+      return render_template_wrapper('viewGenre.html', genre=genre)
+    else:
+      userID = session.get('userID')
+      if userID is None:
+        return redirect(url_for('auth'))
+      genre.setName(request.form.get('name'))
+      genre.setDescription(request.form.get('description'))
+      return redirect(url_for('viewAndUpdateGenre', genre_id=genre_id))
 
   def render_template_wrapper(*args, **kwargs):
     userInfo = None

@@ -20,7 +20,7 @@ class Director:
     return result['name']
 
   def setName(self, name):
-    self.database.conn.execute(f'UPDATE Director SET name = {name} WHERE director_id = {self.director_id}')
+    self.database.conn.execute(f'UPDATE Director SET name = "{name}" WHERE director_id = {self.director_id}')
     self.database.conn.commit()
 
   def getSex(self):
@@ -28,7 +28,7 @@ class Director:
     return result['sex']
 
   def setSex(self, sex):
-    self.database.conn.execute(f'UPDATE Director SET sex = {sex} WHERE director_id = {self.director_id}')
+    self.database.conn.execute(f'UPDATE Director SET sex = "{sex}" WHERE director_id = {self.director_id}')
     self.database.conn.commit()
 
   def getBirthDate(self):
@@ -36,7 +36,7 @@ class Director:
     return result['birthDate']
 
   def setName(self, birthDate):
-    self.database.conn.execute(f'UPDATE Director SET birthDate = {birthDate} WHERE director_id = {self.director_id}')
+    self.database.conn.execute(f'UPDATE Director SET birthDate = "{birthDate}" WHERE director_id = {self.director_id}')
     self.database.conn.commit()
 
   def addRating(self, userID, score):

@@ -20,7 +20,7 @@ class Media:
     return result['name']
 
   def setName(self, name):
-    self.database.conn.execute(f'UPDATE Media SET name = {name} WHERE media_id = {self.media_id}')
+    self.database.conn.execute(f'UPDATE Media SET name = "{name}" WHERE media_id = {self.media_id}')
     self.database.conn.commit()
 
   def getReleaseYear(self):

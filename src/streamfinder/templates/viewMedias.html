@@ -1,0 +1,47 @@
+{% extends "basePage.html" %}
+{% block title %} Actors {% endblock %}
+{% block content %}
+
+<b><p id="statusText" style="display: none;">{{ status }}</p></b>
+
+<h1>Media</h1>
+
+<div id="mediaList">
+  <table id="mediaListTable">
+    <tr><th colspan="4">Media</th></tr>
+    <tr><th>Name</th><th>Release Year</th><th>Genre</th><th>Director</th></tr>
+    {%for media in medias%}
+    <tr>
+      <td>{{ media.getName() }}</td>
+      <td>{{ media.getReleaseYear() }}</td>
+      <td>{{ media.getGenre().getName() }}</td>
+      <td>{{ media.getDirector().getName() }}</td>
+    </tr>
+    {%endfor%}
+  </table>
+</div>
+
+{% if 'userID' in session %}
+
+<div id="addActor">
+  <h2>Add a New Media:</h2>
+  <i>For Noah to do</i>
+
+</div>
+
+<script>
+
+  let p = document.getElementById("statusText");
+  if (p.innerText !== "") {
+    p.style.display = "block";
+  }
+
+  function toTitleCase(name) {
+    return name.replace(/([^\W_]+[^\s-]*) */g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+  }
+
+</script>
+
+{% endif %}
+
+{% endblock %}

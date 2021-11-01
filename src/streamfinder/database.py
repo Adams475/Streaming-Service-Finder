@@ -21,11 +21,27 @@ class Database:
       return None
     return StreamingService(self, ss_id)
 
+  def getStreamingServiceByName(self, name):
+    name = name.lower()
+    services = self.conn.execute(f'SELECT ss_id FROM StreamingService WHERE LOWER(name) LIKE "{name}"').fetchall()
+    output = []
+    for service in services:
+      output.append(self.getStreamingService(service['ss_id']))
+    return output
+
   def getGenre(self, genre_id):
     result = self.conn.execute(f'SELECT COUNT(*) FROM Genre WHERE genre_id = {genre_id}').fetchone()
     if result[0] == 0:
       return None
     return Genre(self, genre_id)
+
+  def getGenreByName(self, name):
+    name = name.lower()
+    genres = self.conn.execute(f'SELECT genre_id FROM Genre WHERE LOWER(name) LIKE "{name}"').fetchall()
+    output = []
+    for genre in genres:
+      output.append(self.getGenre(genre['genre_id']))
+    return output
 
   def getDirector(self, director_id):
     result = self.conn.execute(f'SELECT COUNT(*) FROM Director WHERE director_id = {director_id}').fetchone()
@@ -33,11 +49,27 @@ class Database:
       return None
     return Director(self, director_id)
 
+  def getDirectorByName(self, name):
+    name = name.lower()
+    directors = self.conn.execute(f'SELECT director_id FROM Director WHERE LOWER(name) LIKE "{name}"').fetchall()
+    output = []
+    for director in directors:
+      output.append(self.getDirector(director['director_id']))
+    return output
+
   def getActor(self, actor_id):
     result = self.conn.execute(f'SELECT COUNT(*) FROM Actor WHERE actor_id = {actor_id}').fetchone()
     if result[0] == 0:
       return None
     return Actor(self, actor_id)
+
+  def getActorByName(self, name):
+    name = name.lower()
+    actors = self.conn.execute(f'SELECT actor_id FROM Actor WHERE LOWER(name) LIKE "{name}"').fetchall()
+    output = []
+    for actor in actors:
+      output.append(self.getActor(actor['actor_id']))
+    return output
 
   def getUser(self, user_id):
     result = self.conn.execute(f'SELECT COUNT(*) FROM User WHERE user_id = {user_id}').fetchone()
@@ -106,3 +138,35 @@ class Database:
     if result is None:
       return None
     return User(self, result['user_id'])
+
+  def createGenre(self, name, description=''):
+    cursor = self.conn.cursor()
+    cursor.execute(f'INSERT INTO Genre(name, description) VALUES("{name}", "{description}")')
+    genre_id = cursor.lastrowid
+    cursor.close()
+    self.conn.commit()
+    return self.getGenre(genre_id)
+
+  def createStreamingService(self, name):
+    cursor = self.conn.cursor()
+    cursor.execute(f'INSERT INTO StreamingService(name) VALUES("{name}")')
+    ss_id = cursor.lastrowid
+    cursor.close()
+    self.conn.commit()
+    return self.getStreamingService(ss_id)
+
+  def createActor(self, name, sex='Unspecified', birthDate='?'):
+    cursor = self.conn.cursor()
+    cursor.execute(f'INSERT INTO Actor(name, sex, birthDate) VALUES("{name}", "{sex}", "{birthDate}")')
+    actor_id = cursor.lastrowid
+    cursor.close()
+    self.conn.commit()
+    return self.getActor(actor_id)
+
+  def createDirector(self, name, sex='Unspecified', birthDate='?'):
+    cursor = self.conn.cursor()
+    cursor.execute(f'INSERT INTO Director(name, sex, birthDate) VALUES("{name}", "{sex}", "{birthDate}")')
+    director_id = cursor.lastrowid
+    cursor.close()
+    self.conn.commit()
+    return self.getDirector(director_id)
