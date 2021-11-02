@@ -208,6 +208,24 @@ def run_website():
     database.createActor(name, sex, birthDate)
     return redirect(url_for('viewActors', status=f'Actor "{name}" successfully added!'))
 
+  ### Handle request to submit new media ###
+  @app.route('/addEntity/media', methods=["POST"])
+  def submitMedia():
+    userID = session.get('userID')
+    if userID is None:
+      return redirect(url_for('auth'))
+
+    database = db.Database()
+    name = request.form.get("mediaName")
+    existingMediaList = database.getMediaByName(name)
+    if len(existingMediaList) > 0:
+      return redirect(url_for('viewMedias', status=f'The media "{name}" already exists!'))
+    year = request.form.get("mediaYear")
+    genre = request.form.get("mediaGenre")
+    director = request.form.get("mediaDirector")
+    database.createMedia(name, year, genre, director)
+    return redirect(url_for('viewMedias', status=f'Media "{name}" successfully added!'))
+
   ### Handle request to submit a new director ###
   @app.route('/addEntity/director', methods=["POST"])
   def submitDirector():

@@ -23,9 +23,20 @@
 
 {% if 'userID' in session %}
 
-<div id="addActor">
-  <h2>Add a New Media:</h2>
-  <i>For Noah to do</i>
+<div id="addMedia">
+  <h2>Add New Media:</h2>
+
+  <form id="mediaForm" method="POST" action="{{ url_for('submitMedia') }}" onsubmit="return submitMedia();">
+    <label for="mediaName">Name: </label>
+    <input type="text" id="mediaName" name="mediaName" required><br><br>
+    <label for="mediaYear">Release Year: </label>
+    <input type="text" id="releaseYear" name="mediaYear" required><br><br>
+    <label for="mediaGenre">Genre: </label>
+    <input type="text" id="mediaGenre" name="mediaGenre" required><br><br>
+    <label for="mediaDirector">Director: </label>
+    <input type="text" id="mediaDirector" name="mediaDirector" required><br><br>
+    <input type="submit" value="Submit">
+  </form>
 
 </div>
 
@@ -38,6 +49,16 @@
 
   function toTitleCase(name) {
     return name.replace(/([^\W_]+[^\s-]*) */g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+  }
+
+  function submitMedia() {
+    let name = document.forms["mediaForm"]["mediaName"].value.trim();
+    name = toTitleCase(name);
+    document.forms["mediaForm"]["name"].value = name;
+    if (name == "") {
+      alert("Name cannot be empty!");
+      return false;
+    }
   }
 
 </script>
