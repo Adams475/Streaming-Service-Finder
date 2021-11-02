@@ -59,7 +59,7 @@
   }
 
   function makeUnavailable(mediaId, serviceId) {
-    if (!confirm("Are you sure you want to delete this rating?")) return;
+    if (!confirm("Are you sure you want to mark this as unavailable?")) return;
     data = {"type": "viewable", mediaId: mediaId, serviceId: serviceId};
     fetch(`{{ url_for('deleteEntity') }}`, {
       method: 'POST',
