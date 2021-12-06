@@ -18,8 +18,7 @@ class StreamingService:
     return result[0]['name']
 
   def setName(self, name):
-    self.database.conn.execute(f'UPDATE StreamingService SET name = "{name}" WHERE ss_id = {self.ss_id}')
-    self.database.conn.commit()
+    self.database.execute('UPDATE StreamingService SET name = %s WHERE ss_id = %s', (name, self.ss_id))
 
   def getCorrespondingMedia(self):
     medias = self.database.query('SELECT media_id FROM ViewableOn WHERE ss_id = %s', (self.ss_id, ))
@@ -29,7 +28,6 @@ class StreamingService:
     return result
 
   def makeUnavailable(self, media):
-    self.database.conn.execute(f'DELETE FROM ViewableOn WHERE ss_id = {self.ss_id} AND media_id = {media.getId()}')
-    self.database.conn.commit()
+    self.database.execute('DELETE FROM ViewableOn WHERE ss_id = %s AND media_id = %s', (self.ss_id, media.getId()))
 
 

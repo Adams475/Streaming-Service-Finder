@@ -1,5 +1,3 @@
-import json
-
 class Director:
 
   def __init__(self, database, director_id):
@@ -14,45 +12,39 @@ class Director:
     return self.director_id
 
   def getName(self):
-    result = self.database.query('SELECT name FROM Director WHERE director_id = %s', self.director_id)
+    result = self.database.query('SELECT name FROM Director WHERE director_id = %s', (self.director_id, ))
     return result[0]['name']
 
   def setName(self, name):
-    self.database.conn.execute(f'UPDATE Director SET name = "{name}" WHERE director_id = {self.director_id}')
-    self.database.conn.commit()
+    self.database.execute('UPDATE Director SET name = %s WHERE director_id = %s', (name, self.director_id))
 
   def getSex(self):
     result = self.database.query('SELECT sex FROM Director WHERE director_id = %s', (self.director_id, ))
     return result[0]['sex']
 
   def setSex(self, sex):
-    self.database.conn.execute(f'UPDATE Director SET sex = "{sex}" WHERE director_id = {self.director_id}')
-    self.database.conn.commit()
+    self.database.execute('UPDATE Director SET sex = %s WHERE director_id = %s', (sex, self.director_id))
 
   def getBirthDate(self):
     result = self.database.query('SELECT birthDate FROM Director WHERE director_id = %s', (self.director_id, ))
     return result[0]['birthDate']
 
-  def setName(self, birthDate):
-    self.database.conn.execute(f'UPDATE Director SET birthDate = "{birthDate}" WHERE director_id = {self.director_id}')
-    self.database.conn.commit()
+  def setBirthDate(self, birthDate):
+    self.database.execute('UPDATE Director SET birthDate = %s WHERE director_id = %s', (birthDate, self.director_id))
 
   def addRating(self, userID, score):
     if score < 0:
       score = 0
     elif score > 100:
       score = 100
-    self.database.conn.execute(f'INSERT INTO DirectorRating(director_id, user_id, score) VALUES ({self.getId()}, {userID}, {score})')
-    self.database.conn.commit()
+    self.database.execute('INSERT INTO DirectorRating(director_id, user_id, score) VALUES (%s, %s, %s)', (self.director_id, userID, score))
 
   def updateRating(self, userID, score):
     if score < 0:
       score = 0
     elif score > 100:
       score = 100
-    self.database.conn.execute(f'UPDATE DirectorRating SET score = {score} WHERE director_id = {self.getId()} AND user_id = {userID}')
-    self.database.conn.commit()
+    self.database.execute('UPDATE DirectorRating SET score = %s WHERE director_id = %s AND user_id = %s', (score, self.director_id, userID))
 
   def deleteRating(self, userID):
-    self.database.conn.execute(f'DELETE FROM DirectorRating WHERE director_id = {self.getId()} AND user_id = {userID}')
-    self.database.conn.commit()
+    self.database.execute('DELETE FROM DirectorRating WHERE director_id = %s AND user_id = %s', (self.director_id, userID))

@@ -22,16 +22,14 @@ class User:
     return result[0]['username']
 
   def setUsername(self, username):
-    self.database.conn.execute(f'UPDATE User SET username = {username} WHERE user_id = {self.user_id}')
-    self.database.conn.commit()
+    self.database.execute('UPDATE User SET username = %s WHERE user_id = %s', (username, self.user_id))
 
   def getHashedPassword(self):
     result = self.database.query('SELECT hashedPassword FROM User WHERE user_id = %s', (self.user_id, ))
     return result[0]['hashedPassword']
 
   def setHashedPassword(self, hashedPassword):
-    self.database.conn.execute(f'UPDATE User SET hashedPassword = {hashedPassword} WHERE user_id = {self.user_id}')
-    self.database.conn.commit()
+    self.database.execute('UPDATE User SET hashedPassword = %s WHERE user_id = %s', (hashedPassword, self.user_id))
 
   def getRatings(self):
     ratings = {}

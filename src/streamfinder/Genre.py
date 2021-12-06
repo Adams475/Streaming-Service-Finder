@@ -1,5 +1,3 @@
-import json
-
 from streamfinder.Media import Media
 
 class Genre:
@@ -20,16 +18,14 @@ class Genre:
     return result[0]['name']
 
   def setName(self, name):
-    self.database.conn.execute(f'UPDATE Genre SET name = "{name}" WHERE genre_id = {self.genre_id}')
-    self.database.conn.commit()
+    self.database.execute('UPDATE Genre SET name = %s WHERE genre_id = %s', (name, self.genre_id))
 
   def getDescription(self):
     result = self.database.query('SELECT description FROM Genre WHERE genre_id = %s', (self.genre_id, ))
     return result[0]['description']
 
   def setDescription(self, description):
-    self.database.conn.execute(f'UPDATE Genre SET description = "{description}" WHERE genre_id = {self.genre_id}')
-    self.database.conn.commit()
+    self.database.execute('UPDATE Genre SET description = %s WHERE genre_id = %s', (description, self.genre_id))
 
   def getCorrespondingMedia(self):
     medias = self.database.query('SELECT media_id FROM Media WHERE genre_id = %s', (self.genre_id, ))
