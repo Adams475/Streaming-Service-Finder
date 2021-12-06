@@ -1,3 +1,5 @@
+SET FOREIGN_KEY_CHECKS=0;
+
 DROP TABLE IF EXISTS StreamingService;
 DROP TABLE IF EXISTS Genre;
 DROP TABLE IF EXISTS Director;
@@ -10,87 +12,89 @@ DROP TABLE IF EXISTS MediaRating;
 DROP TABLE IF EXISTS ActorRating;
 DROP TABLE IF EXISTS DirectorRating;
 
-CREATE TABLE IF NOT EXISTS StreamingService(
-  ss_id INTEGER PRIMARY KEY NOT NULL,
-  name TEXT NOT NULL
+CREATE TABLE StreamingService(
+  ss_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Genre(
-  genre_id INTEGER PRIMARY KEY NOT NULL,
-  name TEXT NOT NULL,
-  description TEXT DEFAULT '' NOT NULL
+CREATE TABLE Genre(
+  genre_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) NOT NULL,
+  description VARCHAR(1024) DEFAULT '' NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Director(
-  director_id INTEGER PRIMARY KEY NOT NULL,
-  name TEXT NOT NULL,
-  sex TEXT DEFAULT 'Unspecified' NOT NULL,
-  birthDate TEXT DEFAULT '?' NOT NULL
+CREATE TABLE Director(
+  director_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) NOT NULL,
+  sex VARCHAR(16) DEFAULT 'Unspecified' NOT NULL,
+  birthDate VARCHAR(16) DEFAULT '?' NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Actor(
-  actor_id INTEGER PRIMARY KEY NOT NULL,
-  name TEXT NOT NULL,
-  sex TEXT DEFAULT 'Unspecified' NOT NULL,
-  birthDate TEXT DEFAULT '?' NOT NULL
+CREATE TABLE Actor(
+  actor_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) NOT NULL,
+  sex VARCHAR(16) DEFAULT 'Unspecified' NOT NULL,
+  birthDate VARCHAR(16) DEFAULT '?' NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS User(
-  user_id INTEGER PRIMARY KEY NOT NULL,
-  username TEXT NOT NULL,
-  hashedPassword TEXT NOT NULL
+CREATE TABLE User(
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(64) NOT NULL,
+  hashedPassword VARCHAR(128) NOT NULL
 );
 CREATE UNIQUE INDEX User_Index ON User(username);
 
-CREATE TABLE IF NOT EXISTS Media(
-  media_id INTEGER PRIMARY KEY NOT NULL,
-  name TEXT NOT NULL,
-  releaseYear INTEGER DEFAULT -1 NOT NULL,
-  genre_id INTEGER NOT NULL,
-  director_id INTEGER NOT NULL,
+CREATE TABLE Media(
+  media_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) NOT NULL,
+  releaseYear INT DEFAULT -1 NOT NULL,
+  genre_id INT NOT NULL,
+  director_id INT NOT NULL,
   FOREIGN KEY(genre_id) REFERENCES Genre(genre_id),
   FOREIGN KEY(director_id) REFERENCES Director(director_id)
 );
 
-CREATE TABLE IF NOT EXISTS ViewableOn(
-  media_id INTEGER NOT NULL,
-  ss_id INTEGER NOT NULL,
+CREATE TABLE ViewableOn(
+  media_id INT NOT NULL,
+  ss_id INT NOT NULL,
   PRIMARY KEY(media_id, ss_id),
   FOREIGN KEY(media_id) REFERENCES Media(media_id) ON DELETE CASCADE,
   FOREIGN KEY(ss_id) REFERENCES StreamingService(ss_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS StarsIn(
-  actor_id INTEGER NOT NULL,
-  media_id INTEGER NOT NULL,
+CREATE TABLE StarsIn(
+  actor_id INT NOT NULL,
+  media_id INT NOT NULL,
   PRIMARY KEY(actor_id, media_id),
   FOREIGN KEY(actor_id) REFERENCES Actor(actor_id) ON DELETE CASCADE,
   FOREIGN KEY(media_id) REFERENCES Media(media_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS MediaRating(
-  media_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
-  score INTEGER NOT NULL,
+CREATE TABLE MediaRating(
+  media_id INT NOT NULL,
+  user_id INT NOT NULL,
+  score INT NOT NULL,
   PRIMARY KEY(media_id, user_id),
   FOREIGN KEY(media_id) REFERENCES Media(media_id) ON DELETE CASCADE,
   FOREIGN KEY(user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS ActorRating(
-  actor_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
-  score INTEGER NOT NULL,
+CREATE TABLE ActorRating(
+  actor_id INT NOT NULL,
+  user_id INT NOT NULL,
+  score INT NOT NULL,
   PRIMARY KEY(actor_id, user_id),
   FOREIGN KEY(actor_id) REFERENCES Actor(actor_id) ON DELETE CASCADE,
   FOREIGN KEY(user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS DirectorRating(
-  director_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
-  score INTEGER NOT NULL,
+CREATE TABLE DirectorRating(
+  director_id INT NOT NULL,
+  user_id INT NOT NULL,
+  score INT NOT NULL,
   PRIMARY KEY(director_id, user_id),
   FOREIGN KEY(director_id) REFERENCES Director(director_id) ON DELETE CASCADE,
   FOREIGN KEY(user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
+
+SET FOREIGN_KEY_CHECKS=1;

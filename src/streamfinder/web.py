@@ -42,9 +42,9 @@ def run_website():
     database = db.Database()
     username = request.form.get("username")
     password = request.form.get("password")
-    userToLogin = database.searchUserByUsername(username)
+    userToLogin = database.getUserByUsername(username)
 
-    if not userToLogin:
+    if userToLogin is None:
       # There is no account associated with this username
       return render_template_wrapper('authentication.html', status="There is no account associated with this username.")
     elif not check_password_hash(userToLogin.getHashedPassword(), password):
@@ -64,7 +64,7 @@ def run_website():
     password = request.form.get("password")
 
     # Check to see if a user already exists with this username
-    possibleUser = database.searchUserByUsername(username)
+    possibleUser = database.getUserByUsername(username)
     if possibleUser is not None:
       return render_template_wrapper('authentication.html', status="An account already exists with this username.")
 
