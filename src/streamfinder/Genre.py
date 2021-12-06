@@ -1,4 +1,4 @@
-import json
+from streamfinder.Media import Media
 
 class Genre:
 
@@ -7,33 +7,29 @@ class Genre:
     self.genre_id = genre_id
 
   def toDict(self):
-    result = self.database.conn.execute(f'SELECT * FROM Genre WHERE genre_id = {self.genre_id}').fetchone()
-    if result is None:
-      return {}
-    return dict(result)
+    result = self.database.query('SELECT * FROM Genre WHERE genre_id = %s', (self.genre_id, ))
+    return dict(result[0])
 
   def getId(self):
     return self.genre_id
 
   def getName(self):
-    result = self.database.conn.execute(f'SELECT name FROM Genre WHERE genre_id = {self.genre_id}').fetchone()
-    return result['name']
+    result = self.database.query('SELECT name FROM Genre WHERE genre_id = %s', (self.genre_id, ))
+    return result[0]['name']
 
   def setName(self, name):
-    self.database.conn.execute(f'UPDATE Genre SET name = "{name}" WHERE genre_id = {self.genre_id}')
-    self.database.conn.commit()
+    self.database.execute('UPDATE Genre SET name = %s WHERE genre_id = %s', (name, self.genre_id))
 
   def getDescription(self):
-    result = self.database.conn.execute(f'SELECT description FROM Genre WHERE genre_id = {self.genre_id}').fetchone()
-    return result['description']
+    result = self.database.query('SELECT description FROM Genre WHERE genre_id = %s', (self.genre_id, ))
+    return result[0]['description']
 
   def setDescription(self, description):
-    self.database.conn.execute(f'UPDATE Genre SET description = "{description}" WHERE genre_id = {self.genre_id}')
-    self.database.conn.commit()
+    self.database.execute('UPDATE Genre SET description = %s WHERE genre_id = %s', (description, self.genre_id))
 
   def getCorrespondingMedia(self):
-    medias = self.database.conn.execute(f'SELECT * FROM Media WHERE genre_id = {self.genre_id}')
+    medias = self.database.query('SELECT media_id FROM Media WHERE genre_id = %s', (self.genre_id, ))
     result = []
     for media in medias:
-      result.append(self.database.getMedia(media['media_id']))
+      result.append(Media(self.database, media['media_id']))
     return result
