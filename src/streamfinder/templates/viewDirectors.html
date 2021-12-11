@@ -12,7 +12,7 @@
     <tr><th>Name</th><th>Sex</th><th>Birthday</th></tr>
     {%for director in directors%}
     <tr>
-      <td>{{ director.getName() }}</td>
+      <td><a href="{{ url_for('viewAndUpdateDirector', director_id=director.getId()) }}">{{ director.getName() }}</a></td>
       <td>{{ director.getSex() }}</td>
       <td>{{ director.getBirthDate() }}</td>
     </tr>

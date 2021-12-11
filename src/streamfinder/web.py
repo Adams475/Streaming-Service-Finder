@@ -304,6 +304,38 @@ def run_website():
     medias = db.Database().getAllMedias()
     return render_template_wrapper('viewMedias.html', medias=medias, status=status)
 
+  ### View/Edit Certain Media ###
+  @app.route('/view/media/<media_id>', methods=["GET", "POST"])
+  def viewAndUpdateMedia(media_id):
+    database = db.Database()
+    media = database.getMedia(media_id)
+    if media is None:
+      return redirect(url_for('viewMedias', status="Invalid media id!"))
+    if request.method == "GET":
+      genres = database.getAllGenres()
+      directors = database.getAllDirectors()
+      return render_template_wrapper('viewMedia.html', media=media, genres=genres, directors=directors)
+    else:
+      userID = session.get('userID')
+      if userID is None:
+        return redirect(url_for('auth'))
+      media.setName(request.form.get('name'))
+      media.setReleaseYear(int(request.form.get('releaseYear')))
+      media.setGenre(database.getGenre(int(request.form.get('genre'))))
+      media.setDirector(database.getDirector(int(request.form.get('director'))))
+
+      starringActorIds = json.loads(request.form.get('actorIds'))
+      starringActors = list(map(lambda x: database.getActor(int(x)), starringActorIds))
+      media.setStarredActors(starringActors)
+
+      streamingServiceIds = json.loads(request.form.get('streamingServiceIds'))
+      streamingServices = list(map(lambda x: database.getStreamingService(int(x)), streamingServiceIds))
+      print(streamingServiceIds, streamingServices)
+      media.setAvailableStreamingServices(streamingServices)
+
+      return redirect(url_for('viewAndUpdateMedia', media_id=media_id))
+
+
   ### View/Edit Certain Genre ###
   @app.route('/view/genre/<genre_id>', methods=["GET", "POST"])
   def viewAndUpdateGenre(genre_id):
@@ -334,6 +366,16 @@ def run_website():
         return redirect(url_for('auth'))
       service.setName(request.form.get('name'))
       return redirect(url_for('viewAndUpdateStreamingService', ss_id=ss_id))
+
+  ### View/Edit Certain Actor ###
+  @app.route('/view/actor/<actor_id>', methods=["GET", "POST"])
+  def viewAndUpdateActor(actor_id):
+    return "Incomplete"
+
+  ### View/Edit Certain Director
+  @app.route('/view/director/<director_id>', methods=["GET", "POST"])
+  def viewAndUpdateDirector(director_id):
+    return "Incomplete"
 
   ### Delete entity (viewable, etc.) ###
   @app.route("/deleteEntity", methods=["POST"])

@@ -1,5 +1,9 @@
 import json
 
+from streamfinder.Actor import Actor
+from streamfinder.StreamingService import StreamingService
+from streamfinder.database import IsolationLevel
+
 class Media:
 
   def __init__(self, database, media_id):
@@ -57,3 +61,55 @@ class Media:
 
   def deleteRating(self, userID):
     self.database.execute('DELETE FROM MediaRating WHERE media_id = %s AND user_id = %s', (self.media_id, userID))
+
+  def getStarringActors(self):
+    actors = []
+    results = self.database.query('SELECT actor_id FROM Actor WHERE actor_id IN (SELECT actor_id FROM StarsIn WHERE media_id = %s)', (self.media_id, ))
+    for actor in results:
+      actors.append(Actor(self.database, actor['actor_id']))
+    return actors
+
+  def getNotStarringActors(self):
+    actors = []
+    results = self.database.query('SELECT actor_id FROM Actor WHERE actor_id NOT IN (SELECT actor_id FROM StarsIn WHERE media_id = %s)', (self.media_id, ))
+    for actor in results:
+      actors.append(Actor(self.database, actor['actor_id']))
+    return actors
+
+  def setStarredActors(self, actorList):
+    self.database.beginTransaction(IsolationLevel.SERIALIZABLE)
+    cursor = self.database.conn.cursor()
+    try:
+      cursor.execute('DELETE FROM StarsIn WHERE media_id = %s', (self.media_id, ))
+      for actor in actorList:
+        cursor.execute('INSERT INTO StarsIn(media_id, actor_id) VALUES (%s, %s)', (self.media_id, actor.getId()))
+      cursor.close()
+      self.database.commitTransaction()
+    except:
+      self.database.rollbackTransaction()
+
+  def getAvailableStreamingServices(self):
+    streamingServices = []
+    results = self.database.query('SELECT ss_id FROM StreamingService WHERE ss_id IN (SELECT ss_id FROM ViewableOn WHERE media_id = %s)', (self.media_id, ))
+    for streamingService in results:
+      streamingServices.append(StreamingService(self.database, streamingService['ss_id']))
+    return streamingServices
+
+  def getUnavailableStreamingServices(self):
+    streamingServices = []
+    results = self.database.query('SELECT ss_id FROM StreamingService WHERE ss_id NOT IN (SELECT ss_id FROM ViewableOn WHERE media_id = %s)', (self.media_id, ))
+    for streamingService in results:
+      streamingServices.append(StreamingService(self.database, streamingService['ss_id']))
+    return streamingServices
+
+  def setAvailableStreamingServices(self, streamingServiceList):
+    self.database.beginTransaction(IsolationLevel.SERIALIZABLE)
+    cursor = self.database.conn.cursor()
+    try:
+      cursor.execute('DELETE FROM ViewableOn WHERE media_id = %s', (self.media_id, ))
+      for streamingService in streamingServiceList:
+        cursor.execute('INSERT INTO ViewableOn(media_id, ss_id) VALUES (%s, %s)', (self.media_id, streamingService.getId()))
+      cursor.close()
+      self.database.commitTransaction()
+    except:
+      self.database.rollbackTransaction()

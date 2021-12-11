@@ -4,7 +4,7 @@
 
 <h1>View/Edit Genre</h1>
 
-<form id="genreForm" method="POST" action="{{ url_for('viewAndUpdateGenre', genre_id=genre.getId()) }}" onsubmit="return submitGenre();">
+<form id="genreForm" method="POST" action="{{ url_for('viewAndUpdateGenre', genre_id=genre.getId()) }}">
   <label for="name">Name: </label>
   <input type="text" id="genreName" name="name" required value="{{ genre.getName() }}"><br><br>
   <label for="description">Description: </label>
@@ -22,7 +22,7 @@
     {%endfor%}
   </table><br>
 
-  <input type="submit" value="Update Genre">
+  <input type="submit" value="Submit Changes">
 </form>
 
 

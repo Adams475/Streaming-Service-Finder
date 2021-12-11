@@ -12,7 +12,7 @@
     <tr><th>Name</th><th>Sex</th><th>Birthday</th></tr>
     {%for actor in actors%}
     <tr>
-      <td>{{ actor.getName() }}</td>
+      <td><a href="{{ url_for('viewAndUpdateActor', actor_id=actor.getId()) }}">{{ actor.getName() }}</a></td>
       <td>{{ actor.getSex() }}</td>
       <td>{{ actor.getBirthDate() }}</td>
     </tr>

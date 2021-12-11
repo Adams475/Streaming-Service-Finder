@@ -1,19 +1,19 @@
 import mysql.connector
 from enum import Enum
 
-from streamfinder.StreamingService import StreamingService
-from streamfinder.Genre import Genre
-from streamfinder.Director import Director
-from streamfinder.Actor import Actor
-from streamfinder.User import User
-from streamfinder.Media import Media
-
 # Enum for setting isolation levels
 class IsolationLevel(Enum):
     READ_UNCOMMITTED = "READ UNCOMMITTED"
     READ_COMMITTED = "READ COMMITTED"
     REPEATABLE_READ = "REPEATABLE READ"
     SERIALIZABLE = "SERIALIZABLE"
+
+from streamfinder.StreamingService import StreamingService
+from streamfinder.Genre import Genre
+from streamfinder.Director import Director
+from streamfinder.Actor import Actor
+from streamfinder.User import User
+from streamfinder.Media import Media
 
 class Database:
 

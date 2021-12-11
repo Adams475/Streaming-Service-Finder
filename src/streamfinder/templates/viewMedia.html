@@ -1,0 +1,194 @@
+{% extends "basePage.html" %}
+{% block title %} {{ media.getName() }} {% endblock %}
+{% block content %}
+
+<h1>View/Edit Media</h1>
+
+<form id="mediaForm" method="POST" action="{{ url_for('viewAndUpdateMedia', media_id=media.getId()) }}">
+  <label for="name">Name: </label>
+  <input type="text" id="mediaName" name="name" required value="{{ media.getName() }}"><br><br>
+  <label for="releaseYear">Release Year: </label>
+  <input type="text" id="mediaReleaseYear" name="releaseYear" required value="{{ media.getReleaseYear() }}"><br><br>
+
+  <label for="genre">Genre: </label>
+  <select id="mediaGenre" name="genre" required>
+    {% for genre in genres %}
+      {% if genre.getId() == media.getGenre().getId() %}
+      <option value="{{genre.getId()}}" selected>{{ genre.getName() }}</option>
+      {% else %}
+      <option value="{{genre.getId()}}">{{ genre.getName() }}</option>
+      {% endif %}
+    {% endfor %}
+  </select><br><br>
+
+  <label for="director">Director: </label>
+  <select id="mediaDirector" name="director" required>
+    {% for director in directors %}
+      {% if director.getId() == media.getDirector().getId() %}
+      <option value="{{director.getId()}}" selected>{{ director.getName() }}</option>
+      {% else %}
+      <option value="{{director.getId()}}">{{ director.getName() }}</option>
+      {% endif %}
+    {% endfor %}
+  </select><br><br>
+
+  <!-- Starring Actors -->
+
+  <table>
+    <tbody id="actorList">
+      <tr><th colspan="2">Starring Actors</th></tr>
+      {% for actor in media.getStarringActors() %}
+      <tr><td><a href="{{ url_for('viewAndUpdateActor', actor_id=actor.getId()) }}">{{ actor.getName() }}</a></td><td><button type="button" onclick="actorRemoved({{ actor.getId()}}, '{{ actor.getName() }}');">Remove</button></td></tr>
+      {% endfor %}
+    </tbody>
+  </table><br>
+
+  <label for="addActor">Add Starring Actor: </label>
+  <select id="addActorsList" onchange="actorAdded(this.value, this.children[this.selectedIndex].innerText); this.selectedIndex = 0;">
+    <option disabled selected>Select a starring actor to add</option>
+    {% for actor in media.getNotStarringActors() %}
+    <option value="{{actor.getId()}}">{{actor.getName()}}</option>
+    {% endfor %}
+  </select><br><br>
+
+  <input type="text" style="display: none;" id="mediaActorIds" name="actorIds">
+
+  <!-- Streaming Services -->
+
+  <table>
+    <tbody id="streamingServiceList">
+      <tr>
+        <th colspan="2">Streaming Services</th>
+      </tr>
+      {% for streamingService in media.getAvailableStreamingServices() %}
+      <tr>
+        <td><a href="{{ url_for('viewAndUpdateStreamingService', ss_id=streamingService.getId()) }}">{{ streamingService.getName() }}</a></td>
+        <td><button type="button" onclick="streamingServiceRemoved({{ streamingService.getId()}}, '{{ streamingService.getName() }}');">Remove</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table><br>
+
+  <label for="addStreamingService">Add Streaming Service: </label>
+  <select id="addStreamingServiceList"
+    onchange="streamingServiceAdded(this.value, this.children[this.selectedIndex].innerText); this.selectedIndex = 0;">
+    <option disabled selected>Select a streaming service to add</option>
+    {% for streamingService in media.getUnavailableStreamingServices() %}
+    <option value="{{streamingService.getId()}}">{{streamingService.getName()}}</option>
+    {% endfor %}
+  </select><br><br><br>
+
+  <input type="text" style="display: none;" id="mediaStreamingServiceIds" name="streamingServiceIds">
+
+
+  <input type="submit" value="Submit Changes">
+</form>
+
+<script>
+  let actorList = document.getElementById('actorList');
+  let nonActorList = document.getElementById('addActorsList');
+
+  let actorIdResult = document.getElementById('mediaActorIds');
+  let actorIdArray = [];
+
+  for (let i = 0; i < actorList.children.length; i++) {
+    let child = actorList.children[i];
+    let result = child.querySelector('a');
+    if (result != null && result.href != null) {
+      id = parseInt(result.href.substring(result.href.lastIndexOf('/') + 1));
+      actorIdArray.push(id);
+    }
+  }
+  actorIdResult.defaultValue = JSON.stringify(actorIdArray);
+
+  function actorAdded(id, name) {
+    let index = -1;
+    for (let i = 0; i < addActorsList.children.length; i++) {
+      let child = addActorsList.children[i];
+      if (child.innerText == name) {
+        index = i;
+        break;
+      }
+    }
+    addActorsList.removeChild(addActorsList.children[index]);
+    let buttonHTML = `<button type="button" onclick="actorRemoved(${id}, '${name}')">Remove</button>`;
+    actorList.innerHTML += `<tr><td><a href="/view/actor/${id}">${name}</a></td><td>${buttonHTML}</td></tr>`;
+    actorIdArray.push(id);
+    actorIdResult.defaultValue = JSON.stringify(actorIdArray);
+  }
+
+  function actorRemoved(id, name) {
+    addActorsList.innerHTML += `<option value="${id}">${name}</option>`;
+    let index = -1;
+    let rows = actorList.getElementsByTagName("tr");
+    for (let i = 0; i < rows.length; i++) {
+      let child = rows[i];
+      let result = child.querySelector('a');
+      if (result != null && result.innerText == name) {
+        index = i;
+        break;
+      }
+    }
+    actorList.removeChild(rows[index]);
+    actorIdArray.splice(actorIdArray.indexOf(id), 1);
+    actorIdResult.defaultValue = JSON.stringify(actorIdArray);
+  }
+</script>
+
+<script>
+
+  let streamingServiceList = document.getElementById('streamingServiceList');
+  let addStreamingServiceList = document.getElementById('addStreamingServiceList');
+
+  let streamingServiceIdResult = document.getElementById('mediaStreamingServiceIds');
+  let streamingServiceIdArray = [];
+
+  for (let i = 0; i < streamingServiceList.children.length; i++) {
+    let child = streamingServiceList.children[i];
+    let result = child.querySelector('a');
+    if (result != null && result.href != null) {
+      id = parseInt(result.href.substring(result.href.lastIndexOf('/') + 1));
+      streamingServiceIdArray.push(id);
+    }
+  }
+  streamingServiceIdResult.defaultValue = JSON.stringify(streamingServiceIdArray);
+
+  function streamingServiceAdded(id, name) {
+    let index = -1;
+    for (let i = 0; i < addStreamingServiceList.children.length; i++) {
+      let child = addStreamingServiceList.children[i];
+      if (child.innerText == name) {
+        index = i;
+        break;
+      }
+    }
+    addStreamingServiceList.removeChild(addStreamingServiceList.children[index]);
+    let buttonHTML = `<button type="button" onclick="streamingServiceRemoved(${id}, '${name}')">Remove</button>`;
+    streamingServiceList.innerHTML += `<tr><td><a href="/view/streamingService/${id}">${name}</a></td><td>${buttonHTML}</td></tr>`;
+    streamingServiceIdArray.push(id);
+    streamingServiceIdResult.defaultValue = JSON.stringify(streamingServiceIdArray);
+  }
+
+  function streamingServiceRemoved(id, name) {
+    addStreamingServiceList.innerHTML += `<option value="${id}">${name}</option>`;
+    let index = -1;
+    let rows = streamingServiceList.getElementsByTagName("tr");
+    for (let i = 0; i < rows.length; i++) {
+      let child = rows[i];
+      let result = child.querySelector('a');
+      if (result != null && result.innerText == name) {
+        index = i;
+        break;
+      }
+    }
+    streamingServiceList.removeChild(rows[index]);
+    streamingServiceIdArray.splice(streamingServiceIdArray.indexOf(id), 1);
+    streamingServiceIdResult.defaultValue = JSON.stringify(streamingServiceIdArray);
+  }
+</script>
+
+
+
+
+{% endblock %}
