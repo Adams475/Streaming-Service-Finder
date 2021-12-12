@@ -1,7 +1,8 @@
 import json
 
-from streamfinder.Actor import Actor
-from streamfinder.StreamingService import StreamingService
+import streamfinder.Actor
+import streamfinder.StreamingService
+
 from streamfinder.database import IsolationLevel
 
 class Media:
@@ -62,18 +63,22 @@ class Media:
   def deleteRating(self, userID):
     self.database.execute('DELETE FROM MediaRating WHERE media_id = %s AND user_id = %s', (self.media_id, userID))
 
+  def getAverageRating(self):
+    result = self.database.query('SELECT AVG(score) AS rating FROM MediaRating WHERE media_id = %s', (self.media_id, ))
+    return result[0]['rating']
+
   def getStarringActors(self):
     actors = []
     results = self.database.query('SELECT actor_id FROM Actor WHERE actor_id IN (SELECT actor_id FROM StarsIn WHERE media_id = %s)', (self.media_id, ))
     for actor in results:
-      actors.append(Actor(self.database, actor['actor_id']))
+      actors.append(streamfinder.Actor.Actor(self.database, actor['actor_id']))
     return actors
 
   def getNotStarringActors(self):
     actors = []
     results = self.database.query('SELECT actor_id FROM Actor WHERE actor_id NOT IN (SELECT actor_id FROM StarsIn WHERE media_id = %s)', (self.media_id, ))
     for actor in results:
-      actors.append(Actor(self.database, actor['actor_id']))
+      actors.append(streamfinder.Actor.Actor(self.database, actor['actor_id']))
     return actors
 
   def setStarredActors(self, actorList):
@@ -92,14 +97,14 @@ class Media:
     streamingServices = []
     results = self.database.query('SELECT ss_id FROM StreamingService WHERE ss_id IN (SELECT ss_id FROM ViewableOn WHERE media_id = %s)', (self.media_id, ))
     for streamingService in results:
-      streamingServices.append(StreamingService(self.database, streamingService['ss_id']))
+      streamingServices.append(streamfinder.StreamingService.StreamingService(self.database, streamingService['ss_id']))
     return streamingServices
 
   def getUnavailableStreamingServices(self):
     streamingServices = []
     results = self.database.query('SELECT ss_id FROM StreamingService WHERE ss_id NOT IN (SELECT ss_id FROM ViewableOn WHERE media_id = %s)', (self.media_id, ))
     for streamingService in results:
-      streamingServices.append(StreamingService(self.database, streamingService['ss_id']))
+      streamingServices.append(streamfinder.StreamingService.StreamingService(self.database, streamingService['ss_id']))
     return streamingServices
 
   def setAvailableStreamingServices(self, streamingServiceList):

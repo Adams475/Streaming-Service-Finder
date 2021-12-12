@@ -1,3 +1,5 @@
+import streamfinder.Media
+
 class Director:
 
   def __init__(self, database, director_id):
@@ -32,6 +34,13 @@ class Director:
   def setBirthDate(self, birthDate):
     self.database.execute('UPDATE Director SET birthDate = %s WHERE director_id = %s', (birthDate, self.director_id))
 
+  def getDirectedMedias(self):
+    medias = []
+    results = self.database.query('SELECT media_id FROM Media WHERE director_id = %s', (self.director_id, ))
+    for media in results:
+      medias.append(streamfinder.Media.Media(self.database, media['media_id']))
+    return medias
+
   def addRating(self, userID, score):
     if score < 0:
       score = 0
@@ -48,3 +57,7 @@ class Director:
 
   def deleteRating(self, userID):
     self.database.execute('DELETE FROM DirectorRating WHERE director_id = %s AND user_id = %s', (self.director_id, userID))
+
+  def getAverageRating(self):
+    result = self.database.query('SELECT AVG(score) AS rating FROM DirectorRating WHERE director_id = %s', (self.director_id, ))
+    return result[0]['rating']

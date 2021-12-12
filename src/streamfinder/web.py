@@ -197,7 +197,7 @@ def run_website():
     birthMonth = request.form.get("month")
     birthYear = request.form.get("year")
     birthDate = ''
-    if birthYear == "":
+    if birthYear == "" or not birthYear.isnumeric():
       birthDate = "?"
     else:
       try:
@@ -221,8 +221,8 @@ def run_website():
     if len(existingMediaList) > 0:
       return redirect(url_for('viewMedias', status=f'The media "{name}" already exists!'))
     year = request.form.get("mediaYear")
-    genre = request.form.get("mediaGenre")
-    director = request.form.get("mediaDirector")
+    genre = database.getGenre(int(request.form.get("mediaGenre")))
+    director = database.getDirector(int(request.form.get("mediaDirector")))
     database.createMedia(name, year, genre, director)
     return redirect(url_for('viewMedias', status=f'Media "{name}" successfully added!'))
 
@@ -243,7 +243,7 @@ def run_website():
     birthMonth = request.form.get("month")
     birthYear = request.form.get("year")
     birthDate = ''
-    if birthYear == "":
+    if birthYear == "" or not birthYear.isnumeric():
       birthDate = "?"
     else:
       try:
@@ -302,11 +302,14 @@ def run_website():
   def viewMedias():
     status = request.args.get('status') or ""
     medias = db.Database().getAllMedias()
-    return render_template_wrapper('viewMedias.html', medias=medias, status=status)
+    genres = db.Database().getAllGenres()
+    directors = db.Database().getAllDirectors()
+    return render_template_wrapper('viewMedias.html', medias=medias, genres=genres, directors=directors, status=status)
 
   ### View/Edit Certain Media ###
   @app.route('/view/media/<media_id>', methods=["GET", "POST"])
   def viewAndUpdateMedia(media_id):
+    status = request.args.get('status') or ""
     database = db.Database()
     media = database.getMedia(media_id)
     if media is None:
@@ -314,11 +317,16 @@ def run_website():
     if request.method == "GET":
       genres = database.getAllGenres()
       directors = database.getAllDirectors()
-      return render_template_wrapper('viewMedia.html', media=media, genres=genres, directors=directors)
+      return render_template_wrapper('viewMedia.html', status=status, media=media, genres=genres, directors=directors)
     else:
       userID = session.get('userID')
       if userID is None:
         return redirect(url_for('auth'))
+      name = request.form.get("name")
+      if name != media.getName():
+        existingMediaList = media.database.getMediaByName(name)
+        if len(existingMediaList) > 0:
+          return redirect(url_for('viewAndUpdateMedia', media_id=media_id, status=f'The media "{name}" already exists! You cannot change its name to that!'))
       media.setName(request.form.get('name'))
       media.setReleaseYear(int(request.form.get('releaseYear')))
       media.setGenre(database.getGenre(int(request.form.get('genre'))))
@@ -333,66 +341,127 @@ def run_website():
       print(streamingServiceIds, streamingServices)
       media.setAvailableStreamingServices(streamingServices)
 
-      return redirect(url_for('viewAndUpdateMedia', media_id=media_id))
+      return redirect(url_for('viewAndUpdateMedia', media_id=media_id, status="Media updated successfully!"))
 
 
   ### View/Edit Certain Genre ###
   @app.route('/view/genre/<genre_id>', methods=["GET", "POST"])
   def viewAndUpdateGenre(genre_id):
+    status = request.args.get('status') or ""
     genre = db.Database().getGenre(genre_id)
     if genre is None:
       return redirect(url_for('viewGenres', status="Invalid genre id!"))
     if request.method == "GET":
-      return render_template_wrapper('viewGenre.html', genre=genre)
+      return render_template_wrapper('viewGenre.html', status=status, genre=genre)
     else:
       userID = session.get('userID')
       if userID is None:
         return redirect(url_for('auth'))
+      name = request.form.get("name")
+      if name != genre.getName():
+        existingGenreList = genre.database.getGenreByName(name)
+        if len(existingGenreList) > 0:
+          return redirect(url_for('viewAndUpdateGenre', genre_id=genre_id, status=f'The genre "{name}" already exists! You cannot change its name to that!'))
       genre.setName(request.form.get('name'))
       genre.setDescription(request.form.get('description'))
-      return redirect(url_for('viewAndUpdateGenre', genre_id=genre_id))
+      return redirect(url_for('viewAndUpdateGenre', genre_id=genre_id, status="Genre updated successfully!"))
 
   ### View/Edit Certain Streaming Service ###
   @app.route('/view/streamingService/<ss_id>', methods=["GET", "POST"])
   def viewAndUpdateStreamingService(ss_id):
+    status = request.args.get('status') or ""
     service = db.Database().getStreamingService(ss_id)
     if service is None:
       return redirect(url_for('viewStreamingServices', status="Invalid streaming service id!"))
     if request.method == "GET":
-      return render_template_wrapper('viewStreamingService.html', service=service)
+      return render_template_wrapper('viewStreamingService.html', status=status, service=service)
     else:
       userID = session.get('userID')
       if userID is None:
         return redirect(url_for('auth'))
+      name = request.form.get("name")
+      if name != service.getName():
+        existingStreamingServiceList = service.database.getStreamingServiceByName(name)
+        if len(existingStreamingServiceList) > 0:
+          return redirect(url_for('viewAndUpdateStreamingService', ss_id=ss_id, status=f'The streaming service "{name}" already exists! You cannot change its name to that!'))
       service.setName(request.form.get('name'))
-      return redirect(url_for('viewAndUpdateStreamingService', ss_id=ss_id))
+
+      availableMediaIds = json.loads(request.form.get('availableMediaIds'))
+      availableMedias = list(map(lambda x: service.database.getMedia(int(x)), availableMediaIds))
+      service.setAvailableMedia(availableMedias)
+
+      return redirect(url_for('viewAndUpdateStreamingService', ss_id=ss_id, status="Streaming Service updated successfully!"))
 
   ### View/Edit Certain Actor ###
   @app.route('/view/actor/<actor_id>', methods=["GET", "POST"])
   def viewAndUpdateActor(actor_id):
-    return "Incomplete"
+    status = request.args.get('status') or ""
+    actor = db.Database().getActor(actor_id)
+    if actor is None:
+      return redirect(url_for('viewActors', status="Invalid actor id!"))
+    if request.method == "GET":
+      return render_template_wrapper('viewActor.html', status=status, actor=actor)
+    else:
+      name = request.form.get("name")
+      if name != actor.getName():
+        existingDirectorList = actor.database.getActorByName(name)
+        if len(existingDirectorList) > 0:
+          return redirect(url_for('viewAndUpdateActor', actor_id=actor_id, status=f'The actor "{name}" already exists! You cannot change their name to that!'))
+      sex = request.form.get("sex")
+      birthDay = request.form.get("day")
+      birthMonth = request.form.get("month")
+      birthYear = request.form.get("year")
+      birthDate = ''
+      if birthYear == "" or not birthYear.isnumeric():
+        birthDate = "?"
+      else:
+        try:
+          birthDate = datetime.date(year=int(birthYear), month=int(birthMonth), day=int(birthDay))
+          birthDate = birthDate.isoformat()
+        except ValueError:
+          return redirect(url_for('viewAndUpdateActor', actor_id=actor_id, status=f'Invalid date of birth!'))
+      actor.setName(name)
+      actor.setSex(sex)
+      actor.setBirthDate(birthDate)
+
+      starringMediaIds = json.loads(request.form.get('starredMediaIds'))
+      starringMedias = list(map(lambda x: actor.database.getMedia(int(x)), starringMediaIds))
+      actor.setStarredMedias(starringMedias)
+
+      return redirect(url_for('viewAndUpdateActor', actor_id=actor_id, status="Actor updated successfully!"))
 
   ### View/Edit Certain Director
   @app.route('/view/director/<director_id>', methods=["GET", "POST"])
   def viewAndUpdateDirector(director_id):
-    return "Incomplete"
-
-  ### Delete entity (viewable, etc.) ###
-  @app.route("/deleteEntity", methods=["POST"])
-  def deleteEntity():
-    userID = session.get('userID')
-    if userID is None:
-      return redirect(url_for('auth'))
-    database = db.Database()
-
-    type = request.json.get("type")
-    if type == "viewable":
-      media = database.getMedia(int(request.json.get("mediaId")))
-      service = database.getStreamingService(int(request.json.get("serviceId")))
-      if media is None or service is None:
-        return redirect(url_for('viewStreamingServices', status="Invalid media or service!"))
-      service.makeUnavailable(media)
-      return "200"
+    status = request.args.get('status') or ""
+    director = db.Database().getDirector(director_id)
+    if director is None:
+      return redirect(url_for('viewDirectors', status="Invalid director id!"))
+    if request.method == "GET":
+      return render_template_wrapper('viewDirector.html', status=status, director=director)
+    else:
+      name = request.form.get("name")
+      if name != director.getName():
+        existingDirectorList = director.database.getDirectorByName(name)
+        if len(existingDirectorList) > 0:
+          return redirect(url_for('viewAndUpdateDirector', director_id=director_id, status=f'The director "{name}" already exists! You cannot change their name to that!'))
+      sex = request.form.get("sex")
+      birthDay = request.form.get("day")
+      birthMonth = request.form.get("month")
+      birthYear = request.form.get("year")
+      birthDate = ''
+      if birthYear == "" or not birthYear.isnumeric():
+        birthDate = "?"
+      else:
+        try:
+          birthDate = datetime.date(year=int(birthYear), month=int(birthMonth), day=int(birthDay))
+          birthDate = birthDate.isoformat()
+        except ValueError:
+          return redirect(url_for('viewAndUpdateDirector', director_id=director_id, status=f'Invalid date of birth!'))
+      director.setName(name)
+      director.setSex(sex)
+      director.setBirthDate(birthDate)
+      return redirect(url_for('viewAndUpdateDirector', director_id=director_id, status="Director updated successfully!"))
 
   ### Wrapper for render_template so that user information is always passed through ###
   def render_template_wrapper(*args, **kwargs):

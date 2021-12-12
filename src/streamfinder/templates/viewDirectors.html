@@ -1,5 +1,5 @@
 {% extends "basePage.html" %}
-{% block title %} Actors {% endblock %}
+{% block title %} Directors {% endblock %}
 {% block content %}
 
 <b><p id="statusText" style="display: none;">{{ status }}</p></b>
@@ -50,7 +50,7 @@
     </select><br>
     <label for="directorYear">Year: </label>
     <input type="text" name="year"><br><br>
-    <input type="submit" value="Submit">
+    <input type="submit" value="Submit Director">
   </form>
 </div>
 
@@ -66,7 +66,7 @@
   }
 
   function submitDirector() {
-    let name = document.forms["streamingServiceForm"]["name"].value.trim();
+    let name = document.forms["directorForm"]["name"].value.trim();
     name = toTitleCase(name);
     document.forms["directorForm"]["name"].value = name;
     if (name == "") {

@@ -1,0 +1,90 @@
+{% extends "basePage.html" %}
+{% block title %} {{ director.getName() }} {% endblock %}
+{% block content %}
+
+<b><p id="statusText" style="display: none;">{{ status }}</p></b>
+
+<h1>View/Edit Director</h1>
+
+<form id="directorForm" method="POST" action="{{ url_for('viewAndUpdateDirector', director_id=director.getId()) }}" onsubmit="return submitDirector();">
+  <label for="rating"><b>Average Rating: {{ director.getAverageRating() }}</b></label><br><br>
+
+  <label for="name">Name: </label>
+  <input type="text" id="directorName" name="name" required value="{{director.getName()}}"><br><br>
+  <label for="sex">Sex: </label>
+  <input type="radio" id="directorMale" name="sex" value="Male">
+  <label for="directorSex">Male</label>
+  <input type="radio" id="directorFemale" name="sex" value="Female">
+  <label for="directorSex">Female</label>
+  <input type="radio" name="sex" value="Unspecified" checked>
+  <label for="directorSex">Unspecified</label>
+  <h3>Birthday</h3>
+  <label for="directorMonth">Month: </label>
+  <select id="directorMonth" name="month">
+    {%for i in range(1, 13)%}
+    <option value="{{ i }}">{{ i }}</option>
+    {%endfor%}
+  </select>
+  <label for="directorDay">Day: </label>
+  <select id="directorDay" name="day">
+    {%for i in range(1, 32)%}
+    <option value="{{ i }}">{{ i }}</option>
+    {%endfor%}
+  </select><br>
+  <label for="directorYear">Year: </label>
+  <input type="text" id="directorYear" name="year"><br><br>
+
+  <table>
+    <tbody id="mediaList">
+      <tr><th colspan="3">Media Directed</th></tr>
+      <tr><th>Name</th><th>Release Year</th><th>Genre</th></tr>
+      {% for media in director.getDirectedMedias() %}
+      <tr><td><a href="{{ url_for('viewAndUpdateMedia', media_id=media.getId()) }}">{{ media.getName() }}</a></td><td>{{media.getReleaseYear()}}</td><td>{{media.getGenre().getName()}}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table><br><br>
+
+  <input type="submit" value="Submit Changes">
+</form>
+
+
+<script>
+
+  let p = document.getElementById("statusText");
+  if (p.innerText !== "") {
+    p.style.display = "block";
+  }
+
+  let birthday = "{{ director.getBirthDate() }}";
+  if (birthday != "?") {
+    let year = birthday.substring(0, 4);
+    let month = birthday.substring(5, 7);
+    let day = birthday.substring(8, 10);
+    document.getElementById('directorYear').value = year;
+    document.getElementById('directorMonth').selectedIndex = parseInt(month) - 1;
+    document.getElementById('directorDay').selectedIndex = parseInt(day) - 1;
+  }
+
+  let sex = "{{ director.getSex() }}"
+  if (sex == "Male") {
+    document.getElementById("directorMale").checked = true;
+  } else if (sex == "Female") {
+    document.getElementById("directorFemale").checked = true;
+  }
+
+  function toTitleCase(name) {
+    return name.replace(/([^\W_]+[^\s-]*) */g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+  }
+
+  function submitDirector() {
+    let name = document.forms["directorForm"]["name"].value.trim();
+    name = toTitleCase(name);
+    document.forms["directorForm"]["name"].value = name;
+    if (name == "") {
+      alert("Name cannot be empty!");
+      return false;
+    }
+  }
+</script>
+
+{% endblock %}

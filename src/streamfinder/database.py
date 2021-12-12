@@ -226,9 +226,6 @@ class Database:
         director_id = self.execute('INSERT INTO Director(name, sex, birthDate) VALUES(%s, %s, %s)', (name, sex, birthDate))
         return Director(self, director_id)
 
-    def createMedia(self, name, year, genreName, directorName):
-        genre_id = self.getGenreByName(genreName)[0].getId()
-        director_id = self.getDirectorByName(directorName)[0].getId()
-        media_id = self.execute('INSERT INTO Media(name, releaseYear, genre_id, director_id) VALUES(%s, %s, %s, %s)', (name, year, genre_id, director_id))
+    def createMedia(self, name, year, genre, director):
+        media_id = self.execute('INSERT INTO Media(name, releaseYear, genre_id, director_id) VALUES(%s, %s, %s, %s)', (name, year, genre.getId(), director.getId()))
         return Media(self, media_id)
-

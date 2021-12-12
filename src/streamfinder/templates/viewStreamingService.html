@@ -12,32 +12,43 @@
     {%endfor%}
 </div>
 
-<div id="addStreamingService">
-  <form id="streamingServiceForm" method="POST" action="{{ url_for('viewAndUpdateStreamingService', ss_id=service.getId()) }}"
-    onsubmit="return submitStreamingService();">
-    <label for="name">Name: </label>
-    <input type="text" id="streamingServiceName" name="name" value="{{ service.getName() }}" required><br><br>
+<form id="streamingServiceForm" method="POST" action="{{ url_for('viewAndUpdateStreamingService', ss_id=service.getId()) }}"
+  onsubmit="return submitStreamingService();">
+  <label for="name">Name: </label>
+  <input type="text" id="streamingServiceName" name="name" value="{{ service.getName() }}" required><br><br>
 
-    <table id="mediaListTable">
-      <tr><th colspan="5">Available Media</th></tr>
-      <tr><th>Name</th><th>Release Year</th><th>Genre</th><th>Director</th><th>Mark Unavailable</th></tr>
-      {%for media in service.getCorrespondingMedia()%}
+  <!-- Media Available -->
+
+  <table>
+    <tbody id="mediaList">
       <tr>
-        <td>{{ media.getName() }}</td>
-        <td>{{ media.getReleaseYear() }}</td>
-        <td>{{ media.getGenre().getName() }}</td>
-        <td>{{ media.getDirector().getName() }}</td>
-        <td><button onclick="makeUnavailable(`{{ media.getId() }}`, `{{ service.getId() }}`)">Mark Unavailable</button></td>
+        <th colspan="2">Available Media</th>
       </tr>
-      {%endfor%}
-    </table><br>
+      {% for media in service.getAvailableMedia() %}
+      <tr>
+        <td><a href="{{ url_for('viewAndUpdateMedia', media_id=media.getId()) }}">{{ media.getName() }}</a></td>
+        <td><button type="button" onclick="mediaRemoved('{{ media.getId()}}', '{{ media.getName() }}');">Remove</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table><br>
 
-    <input type="submit" value="Submit">
-  </form>
-</div>
+  <label for="addMedia">Add Media Starred In: </label>
+  <select id="addMediaList"
+    onchange="mediaAdded(this.value, this.children[this.selectedIndex].innerText); this.selectedIndex = 0;">
+    <option disabled selected>Select a media to add</option>
+    {% for media in service.getUnavailableMedia() %}
+    <option value="{{media.getId()}}">{{media.getName()}}</option>
+    {% endfor %}
+  </select><br><br><br>
 
+  <input type="text" style="display: none;" id="availableMediaIds" name="availableMediaIds">
+
+
+  <input type="submit" value="Submit Changes">
+</form>
 <script>
-
   let p = document.getElementById("statusText");
   if (p.innerText !== "") {
     p.style.display = "block";
@@ -57,24 +68,56 @@
     }
     return true;
   }
+</script>
 
-  function makeUnavailable(mediaId, serviceId) {
-    if (!confirm("Are you sure you want to mark this as unavailable?")) return;
-    data = {"type": "viewable", mediaId: mediaId, serviceId: serviceId};
-    fetch(`{{ url_for('deleteEntity') }}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data)
-    }).then(response => response.json())
-      .then(response => {
-        if (response == 200) {
-          alert("Successfully deleted from availability list.");
-          window.location.reload(false);
-        }
-      })
-      .catch(error => alert(`Request failed: Error: ${error}`));
+<script>
+  let mediaList = document.getElementById('mediaList');
+  let addMediaList = document.getElementById('addMediaList');
+
+  let mediaIdResult = document.getElementById('availableMediaIds');
+  let mediaIdArray = [];
+
+  for (let i = 0; i < mediaList.children.length; i++) {
+    let child = mediaList.children[i];
+    let result = child.querySelector('a');
+    if (result != null && result.href != null) {
+      id = result.href.substring(result.href.lastIndexOf('/') + 1);
+      mediaIdArray.push(id);
+    }
+  }
+  mediaIdResult.defaultValue = JSON.stringify(mediaIdArray);
+
+  function mediaAdded(id, name) {
+    let index = -1;
+    for (let i = 0; i < addMediaList.children.length; i++) {
+      let child = addMediaList.children[i];
+      if (child.innerText == name) {
+        index = i;
+        break;
+      }
+    }
+    addMediaList.removeChild(addMediaList.children[index]);
+    let buttonHTML = `<button type="button" onclick="mediaRemoved('${id}', '${name}')">Remove</button>`;
+    mediaList.innerHTML += `<tr><td><a href="/view/media/${id}">${name}</a></td><td>${buttonHTML}</td></tr>`;
+    mediaIdArray.push(id);
+    mediaIdResult.defaultValue = JSON.stringify(mediaIdArray);
+  }
+
+  function mediaRemoved(id, name) {
+    addMediaList.innerHTML += `<option value="${id}">${name}</option>`;
+    let index = -1;
+    let rows = mediaList.getElementsByTagName("tr");
+    for (let i = 0; i < rows.length; i++) {
+      let child = rows[i];
+      let result = child.querySelector('a');
+      if (result != null && result.innerText == name) {
+        index = i;
+        break;
+      }
+    }
+    mediaList.removeChild(rows[index]);
+    mediaIdArray.splice(mediaIdArray.indexOf(id), 1);
+    mediaIdResult.defaultValue = JSON.stringify(mediaIdArray);
   }
 </script>
 

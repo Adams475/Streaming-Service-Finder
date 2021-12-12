@@ -4,7 +4,9 @@
 
 <h1>View/Edit Media</h1>
 
-<form id="mediaForm" method="POST" action="{{ url_for('viewAndUpdateMedia', media_id=media.getId()) }}">
+<form id="mediaForm" method="POST" action="{{ url_for('viewAndUpdateMedia', media_id=media.getId()) }}" onsubmit="return submitMedia();">
+  <label for="rating"><b>Average Rating: {{ media.getAverageRating() }}</b></label><br><br>
+
   <label for="name">Name: </label>
   <input type="text" id="mediaName" name="name" required value="{{ media.getName() }}"><br><br>
   <label for="releaseYear">Release Year: </label>
@@ -12,6 +14,7 @@
 
   <label for="genre">Genre: </label>
   <select id="mediaGenre" name="genre" required>
+    <option value="-1" disabled>Select a Genre</option>
     {% for genre in genres %}
       {% if genre.getId() == media.getGenre().getId() %}
       <option value="{{genre.getId()}}" selected>{{ genre.getName() }}</option>
@@ -23,6 +26,7 @@
 
   <label for="director">Director: </label>
   <select id="mediaDirector" name="director" required>
+    <option value="-1" disabled>Select a Director</option>
     {% for director in directors %}
       {% if director.getId() == media.getDirector().getId() %}
       <option value="{{director.getId()}}" selected>{{ director.getName() }}</option>
@@ -38,7 +42,7 @@
     <tbody id="actorList">
       <tr><th colspan="2">Starring Actors</th></tr>
       {% for actor in media.getStarringActors() %}
-      <tr><td><a href="{{ url_for('viewAndUpdateActor', actor_id=actor.getId()) }}">{{ actor.getName() }}</a></td><td><button type="button" onclick="actorRemoved({{ actor.getId()}}, '{{ actor.getName() }}');">Remove</button></td></tr>
+      <tr><td><a href="{{ url_for('viewAndUpdateActor', actor_id=actor.getId()) }}">{{ actor.getName() }}</a></td><td><button type="button" onclick="actorRemoved('{{ actor.getId()}}', '{{ actor.getName() }}');">Remove</button></td></tr>
       {% endfor %}
     </tbody>
   </table><br>
@@ -63,7 +67,7 @@
       {% for streamingService in media.getAvailableStreamingServices() %}
       <tr>
         <td><a href="{{ url_for('viewAndUpdateStreamingService', ss_id=streamingService.getId()) }}">{{ streamingService.getName() }}</a></td>
-        <td><button type="button" onclick="streamingServiceRemoved({{ streamingService.getId()}}, '{{ streamingService.getName() }}');">Remove</button>
+        <td><button type="button" onclick="streamingServiceRemoved('{{ streamingService.getId()}}', '{{ streamingService.getName() }}');">Remove</button>
         </td>
       </tr>
       {% endfor %}
@@ -86,8 +90,31 @@
 </form>
 
 <script>
+  function submitMedia() {
+    let name = document.forms["mediaForm"]["name"].value.trim();
+    name = toTitleCase(name);
+    document.forms["mediaForm"]["name"].value = name;
+    document.forms["mediaForm"]["releaseYear"].value = document.forms["mediaForm"]["releaseYear"].value.trim();
+    if (name == "") {
+      alert("Name cannot be empty!");
+      return false;
+    } else if (isNaN(document.forms["mediaForm"]["releaseYear"].value) || document.forms["mediaForm"]["releaseYear"].value == "") {
+      alert("Year must be a number!");
+      return false;
+    } else if (document.forms["mediaForm"]["genre"].value == -1) {
+      alert("Must choose a genre!");
+      return false;
+    } else if (document.forms["mediaForm"]["director"].value == -1) {
+      alert("Must choose a director!");
+      return false;
+    }
+    return true;
+  }
+</script>
+
+<script>
   let actorList = document.getElementById('actorList');
-  let nonActorList = document.getElementById('addActorsList');
+  let addActorsList = document.getElementById('addActorsList');
 
   let actorIdResult = document.getElementById('mediaActorIds');
   let actorIdArray = [];
@@ -112,7 +139,7 @@
       }
     }
     addActorsList.removeChild(addActorsList.children[index]);
-    let buttonHTML = `<button type="button" onclick="actorRemoved(${id}, '${name}')">Remove</button>`;
+    let buttonHTML = `<button type="button" onclick="actorRemoved('${id}', '${name}')">Remove</button>`;
     actorList.innerHTML += `<tr><td><a href="/view/actor/${id}">${name}</a></td><td>${buttonHTML}</td></tr>`;
     actorIdArray.push(id);
     actorIdResult.defaultValue = JSON.stringify(actorIdArray);
@@ -164,7 +191,7 @@
       }
     }
     addStreamingServiceList.removeChild(addStreamingServiceList.children[index]);
-    let buttonHTML = `<button type="button" onclick="streamingServiceRemoved(${id}, '${name}')">Remove</button>`;
+    let buttonHTML = `<button type="button" onclick="streamingServiceRemoved('${id}', '${name}')">Remove</button>`;
     streamingServiceList.innerHTML += `<tr><td><a href="/view/streamingService/${id}">${name}</a></td><td>${buttonHTML}</td></tr>`;
     streamingServiceIdArray.push(id);
     streamingServiceIdResult.defaultValue = JSON.stringify(streamingServiceIdArray);

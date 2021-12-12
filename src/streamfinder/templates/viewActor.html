@@ -1,0 +1,152 @@
+{% extends "basePage.html" %}
+{% block title %} {{ actor.getName() }} {% endblock %}
+{% block content %}
+
+<b><p id="statusText" style="display: none;">{{ status }}</p></b>
+
+<h1>View/Edit Actor</h1>
+
+<form id="actorForm" method="POST" action="{{ url_for('viewAndUpdateActor', actor_id=actor.getId()) }}" onsubmit="return submitActor();">
+  <label for="rating"><b>Average Rating: {{ actor.getAverageRating() }}</b></label><br><br>
+
+  <label for="name">Name: </label>
+  <input type="text" id="actorName" name="name" required value="{{actor.getName()}}"><br><br>
+  <label for="sex">Sex: </label>
+  <input type="radio" id="actorMale" name="sex" value="Male">
+  <label for="actorSex">Male</label>
+  <input type="radio" id="actorFemale" name="sex" value="Female">
+  <label for="actorSex">Female</label>
+  <input type="radio" name="sex" value="Unspecified" checked>
+  <label for="actorSex">Unspecified</label>
+  <h3>Birthday</h3>
+  <label for="actorMonth">Month: </label>
+  <select id="actorMonth" name="month">
+    {%for i in range(1, 13)%}
+    <option value="{{ i }}">{{ i }}</option>
+    {%endfor%}
+  </select>
+  <label for="actorDay">Day: </label>
+  <select id="actorDay" name="day">
+    {%for i in range(1, 32)%}
+    <option value="{{ i }}">{{ i }}</option>
+    {%endfor%}
+  </select><br>
+  <label for="actorYear">Year: </label>
+  <input type="text" id="actorYear" name="year"><br><br>
+
+  <!-- Media Starred In -->
+
+  <table>
+    <tbody id="mediaList">
+      <tr><th colspan="2">Media Starred In</th></tr>
+      {% for media in actor.getStarredMedias() %}
+      <tr><td><a href="{{ url_for('viewAndUpdateMedia', media_id=media.getId()) }}">{{ media.getName() }}</a></td><td><button type="button" onclick="mediaRemoved('{{ media.getId()}}', '{{ media.getName() }}');">Remove</button></td></tr>
+      {% endfor %}
+    </tbody>
+  </table><br>
+
+  <label for="addMedia">Add Media Starred In: </label>
+  <select id="addMediaList" onchange="mediaAdded(this.value, this.children[this.selectedIndex].innerText); this.selectedIndex = 0;">
+    <option disabled selected>Select a media to add</option>
+    {% for media in actor.getMediasNotStarredIn() %}
+    <option value="{{media.getId()}}">{{media.getName()}}</option>
+    {% endfor %}
+  </select><br><br><br>
+  <input type="text" style="display: none;" id="starredMediaIds" name="starredMediaIds">
+
+
+  <input type="submit" value="Submit Changes">
+</form>
+
+
+<script>
+
+  let p = document.getElementById("statusText");
+  if (p.innerText !== "") {
+    p.style.display = "block";
+  }
+
+  let birthday = "{{ actor.getBirthDate() }}";
+  if (birthday != "?") {
+    let year = birthday.substring(0, 4);
+    let month = birthday.substring(5, 7);
+    let day = birthday.substring(8, 10);
+    document.getElementById('actorYear').value = year;
+    document.getElementById('actorMonth').selectedIndex = parseInt(month) - 1;
+    document.getElementById('actorDay').selectedIndex = parseInt(day) - 1;
+  }
+
+  let sex = "{{ actor.getSex() }}"
+  if (sex == "Male") {
+    document.getElementById("actorMale").checked = true;
+  } else if (sex == "Female") {
+    document.getElementById("actorFemale").checked = true;
+  }
+
+  function toTitleCase(name) {
+    return name.replace(/([^\W_]+[^\s-]*) */g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+  }
+
+  function submitActor() {
+    let name = document.forms["actorForm"]["name"].value.trim();
+    name = toTitleCase(name);
+    document.forms["actorForm"]["name"].value = name;
+    if (name == "") {
+      alert("Name cannot be empty!");
+      return false;
+    }
+  }
+</script>
+
+<script>
+  let mediaList = document.getElementById('mediaList');
+  let addMediaList = document.getElementById('addMediaList');
+
+  let mediaIdResult = document.getElementById('starredMediaIds');
+  let mediaIdArray = [];
+
+  for (let i = 0; i < mediaList.children.length; i++) {
+    let child = mediaList.children[i];
+    let result = child.querySelector('a');
+    if (result != null && result.href != null) {
+      id = result.href.substring(result.href.lastIndexOf('/') + 1);
+      mediaIdArray.push(id);
+    }
+  }
+  mediaIdResult.defaultValue = JSON.stringify(mediaIdArray);
+
+  function mediaAdded(id, name) {
+    let index = -1;
+    for (let i = 0; i < addMediaList.children.length; i++) {
+      let child = addMediaList.children[i];
+      if (child.innerText == name) {
+        index = i;
+        break;
+      }
+    }
+    addMediaList.removeChild(addMediaList.children[index]);
+    let buttonHTML = `<button type="button" onclick="mediaRemoved('${id}', '${name}')">Remove</button>`;
+    mediaList.innerHTML += `<tr><td><a href="/view/media/${id}">${name}</a></td><td>${buttonHTML}</td></tr>`;
+    mediaIdArray.push(id);
+    mediaIdResult.defaultValue = JSON.stringify(mediaIdArray);
+  }
+
+  function mediaRemoved(id, name) {
+    addMediaList.innerHTML += `<option value="${id}">${name}</option>`;
+    let index = -1;
+    let rows = mediaList.getElementsByTagName("tr");
+    for (let i = 0; i < rows.length; i++) {
+      let child = rows[i];
+      let result = child.querySelector('a');
+      if (result != null && result.innerText == name) {
+        index = i;
+        break;
+      }
+    }
+    mediaList.removeChild(rows[index]);
+    mediaIdArray.splice(mediaIdArray.indexOf(id), 1);
+    mediaIdResult.defaultValue = JSON.stringify(mediaIdArray);
+  }
+</script>
+
+{% endblock %}

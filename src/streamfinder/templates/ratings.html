@@ -10,7 +10,7 @@
     <tr><th>Name</th><th colspan="3">Score</th></tr>
     {%for actor in ratings['actorRatings']%}
     <tr>
-      <td>{{ actor['name'] }}</td>
+      <td><a href="{{ url_for('viewAndUpdateActor', actor_id=actor['actor_id']) }}">{{ actor['name'] }}</a></td>
       <td id="actor{{ actor['actor_id'] }}score">{{ actor['score'] }}</td>
       <td><button onclick="editRating('actor', `{{ actor['actor_id'] }}`);">Edit</button></td>
       <td><button onclick="deleteRating('actor', `{{ actor['actor_id'] }}`);">Delete</button></td>
@@ -33,7 +33,7 @@
     <tr><th>Name</th><th colspan="3">Score</th></tr>
     {%for director in ratings['directorRatings']%}
     <tr>
-      <td>{{ director['name'] }}</td>
+      <td><a href="{{ url_for('viewAndUpdateDirector', director_id=director['director_id']) }}">{{ director['name'] }}</a></td>
       <td id="director{{ director['director_id'] }}score">{{ director['score'] }}</td>
       <td><button onclick="editRating('director', `{{ director['director_id'] }}`);">Edit</button></td>
       <td><button onclick="deleteRating('director', `{{ director['director_id'] }}`);">Delete</button></td>
@@ -56,7 +56,7 @@
     <tr><th>Name</th><th colspan="3">Score</th></tr>
     {%for media in ratings['mediaRatings']%}
     <tr>
-      <td>{{ media['name'] }}</td>
+      <td><a href="{{ url_for('viewAndUpdateMedia', media_id=media['media_id']) }}">{{ media['name'] }}</a></td>
       <td id="media{{ media['media_id'] }}score">{{ media['score'] }}</td>
       <td><button onclick="editRating('media', `{{ media['media_id'] }}`);">Edit</button></td>
       <td><button onclick="deleteRating('media', `{{ media['media_id'] }}`);">Delete</button></td>
@@ -80,8 +80,9 @@
   function promptForRating() {
     value = "";
     while (value == "" || isNaN(value) || value < 0 || value > 100) {
-      value = prompt("Enter a number between 0 and 100.");
+      value = prompt("Enter an integer between 0 and 100.");
       if (value == null) break;
+      value = Math.round(value);
     }
     return value;
   }

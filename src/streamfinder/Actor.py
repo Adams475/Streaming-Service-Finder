@@ -1,3 +1,6 @@
+import streamfinder.Media
+import streamfinder.database
+
 class Actor:
 
   def __init__(self, database, actor_id):
@@ -32,6 +35,32 @@ class Actor:
   def setBirthDate(self, birthDate):
     self.database.execute('UPDATE Actor SET birthDate = %s WHERE actor_id = %s', (birthDate, self.actor_id))
 
+  def getStarredMedias(self):
+    medias = []
+    results = self.database.query('SELECT media_id FROM StarsIn WHERE actor_id = %s', (self.actor_id, ))
+    for media in results:
+      medias.append(streamfinder.Media.Media(self.database, media['media_id']))
+    return medias
+
+  def getMediasNotStarredIn(self):
+    medias = []
+    results = self.database.query('SELECT media_id FROM Media WHERE media_id NOT IN (SELECT media_id FROM StarsIn WHERE actor_id = %s)', (self.actor_id, ))
+    for media in results:
+      medias.append(streamfinder.Media.Media(self.database, media['media_id']))
+    return medias
+
+  def setStarredMedias(self, mediaList):
+    self.database.beginTransaction(streamfinder.database.IsolationLevel.SERIALIZABLE)
+    cursor = self.database.conn.cursor()
+    try:
+      cursor.execute('DELETE FROM StarsIn WHERE actor_id = %s', (self.actor_id, ))
+      for media in mediaList:
+        cursor.execute('INSERT INTO StarsIn(media_id, actor_id) VALUES (%s, %s)', (media.getId(), self.actor_id))
+      cursor.close()
+      self.database.commitTransaction()
+    except:
+      self.database.rollbackTransaction()
+
   def addRating(self, userID, score):
     if score < 0:
       score = 0
@@ -48,3 +77,7 @@ class Actor:
 
   def deleteRating(self, userID):
     self.database.execute('DELETE FROM ActorRating WHERE actor_id = %s AND user_id = %s', (self.actor_id, userID))
+
+  def getAverageRating(self):
+    result = self.database.query('SELECT AVG(score) AS rating FROM ActorRating WHERE actor_id = %s', (self.actor_id, ))
+    return result[0]['rating']
