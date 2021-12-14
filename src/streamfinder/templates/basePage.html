@@ -29,6 +29,9 @@
         <div class='HeaderItem'>
           <a href="{{ url_for('viewStreamingServices') }}">Streaming Services</a>
         </div>
+        <div class='HeaderItem'>
+          <a href="{{ url_for('search') }}">Search</a>
+        </div>
         {% if 'userID' in session %}
         <div class='HeaderItem'>
           <a href="{{ url_for('viewRatings') }}">View Ratings</a>

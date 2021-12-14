@@ -1,6 +1,7 @@
 import json
 
 import streamfinder.Actor
+import streamfinder.Director
 import streamfinder.StreamingService
 
 from streamfinder.database import IsolationLevel

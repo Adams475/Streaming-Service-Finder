@@ -263,3 +263,5 @@ class Database:
         media_id = self.execute('INSERT INTO Media(name, releaseYear, genre_id, director_id) VALUES(%s, %s, %s, %s)',
                                 (name, year, genre.getId(), director.getId()))
         return Media(self, media_id)
+
+  
