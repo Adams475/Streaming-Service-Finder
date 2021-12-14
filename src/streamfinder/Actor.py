@@ -3,9 +3,10 @@ import streamfinder.database
 
 class Actor:
 
-  def __init__(self, database, actor_id):
+  def __init__(self, database, actorData):
     self.database = database
-    self.actor_id = actor_id
+    self.actor_id = actorData['actor_id']
+    self.data = actorData
 
   def toDict(self):
     result = self.database.query('SELECT * FROM Actor WHERE actor_id = %s', (self.actor_id, ))
@@ -15,39 +16,48 @@ class Actor:
     return self.actor_id
 
   def getName(self):
+    if 'name' in self.data:
+      return self.data['name']
     result = self.database.query('SELECT name FROM Actor WHERE actor_id = %s', (self.actor_id, ))
-    return result[0]['name']
+    self.data['name'] = result[0]['name']
+    return self.data['name']
 
   def setName(self, name):
     self.database.execute('UPDATE Actor SET name = %s WHERE actor_id = %s', (name, self.actor_id))
 
   def getSex(self):
+    if 'sex' in self.data:
+      return self.data['sex']
     result = self.database.query('SELECT sex FROM Actor WHERE actor_id = %s', (self.actor_id, ))
-    return result[0]['sex']
+    self.data['sex'] = result[0]['sex']
+    return self.data['sex']
 
   def setSex(self, sex):
     self.database.execute('UPDATE Actor SET sex = %s WHERE actor_id = %s', (sex, self.actor_id))
 
   def getBirthDate(self):
+    if 'birthDate' in self.data:
+      return self.data['birthDate']
     result = self.database.query('SELECT birthDate FROM Actor WHERE actor_id = %s', (self.actor_id, ))
-    return result[0]['birthDate']
+    self.data['birthDate'] = result[0]['birthDate']
+    return self.data['birthDate']
 
   def setBirthDate(self, birthDate):
     self.database.execute('UPDATE Actor SET birthDate = %s WHERE actor_id = %s', (birthDate, self.actor_id))
 
   def getStarredMedias(self):
-    medias = []
-    results = self.database.query('SELECT media_id FROM StarsIn WHERE actor_id = %s', (self.actor_id, ))
-    for media in results:
-      medias.append(streamfinder.Media.Media(self.database, media['media_id']))
-    return medias
+    results = []
+    medias = self.database.query('SELECT * FROM StarsIn NATURAL JOIN Media WHERE actor_id = %s', (self.actor_id, ))
+    for mediaData in medias:
+      results.append(streamfinder.Media.Media(self.database, mediaData))
+    return results
 
   def getMediasNotStarredIn(self):
-    medias = []
-    results = self.database.query('SELECT media_id FROM Media WHERE media_id NOT IN (SELECT media_id FROM StarsIn WHERE actor_id = %s)', (self.actor_id, ))
-    for media in results:
-      medias.append(streamfinder.Media.Media(self.database, media['media_id']))
-    return medias
+    results = []
+    medias = self.database.query('SELECT * FROM Media WHERE media_id NOT IN (SELECT media_id FROM StarsIn WHERE actor_id = %s)', (self.actor_id, ))
+    for mediaData in medias:
+      results.append(streamfinder.Media.Media(self.database, mediaData))
+    return results
 
   def setStarredMedias(self, mediaList):
     self.database.beginTransaction(streamfinder.database.IsolationLevel.READ_COMMITTED)
@@ -80,5 +90,8 @@ class Actor:
     self.database.execute('DELETE FROM ActorRating WHERE actor_id = %s AND user_id = %s', (self.actor_id, userID))
 
   def getAverageRating(self):
+    if 'averageRating' in self.data:
+      return self.data['averageRating']
     result = self.database.query('SELECT AVG(score) AS rating FROM ActorRating WHERE actor_id = %s', (self.actor_id, ))
-    return result[0]['rating']
+    self.data['averageRating'] = result[0]['rating']
+    return self.data['averageRating']

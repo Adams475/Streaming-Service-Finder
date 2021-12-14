@@ -8,9 +8,10 @@ from streamfinder.database import IsolationLevel
 
 class Media:
 
-  def __init__(self, database, media_id):
+  def __init__(self, database, mediaData):
     self.database = database
-    self.media_id = media_id
+    self.media_id = mediaData['media_id']
+    self.data = mediaData
 
   def toDict(self):
     result = self.database.query('SELECT * FROM Media WHERE media_id = %s', (self.media_id, ))
@@ -20,29 +21,45 @@ class Media:
     return self.media_id
 
   def getName(self):
+    if 'name' in self.data:
+      return self.data['name']
     result = self.database.query('SELECT name FROM Media WHERE media_id = %s', (self.media_id, ))
-    return result[0]['name']
+    self.data['name'] = result[0]['name']
+    return self.data['name']
 
   def setName(self, name):
     self.database.execute('UPDATE Media SET name = %s WHERE media_id = %s', (name, self.media_id))
 
   def getReleaseYear(self):
+    if 'releaseYear' in self.data:
+      return self.data['releaseYear']
     result = self.database.query('SELECT releaseYear FROM Media WHERE media_id = %s', (self.media_id, ))
-    return result[0]['releaseYear']
+    self.data['releaseYear'] = result[0]['releaseYear']
+    return self.data['releaseYear']
 
   def setReleaseYear(self, releaseYear):
     self.database.execute('UPDATE Media SET releaseYear = %s WHERE media_id = %s', (releaseYear, self.media_id))
 
   def getGenre(self):
-    result = self.database.query('SELECT genre_id FROM Media WHERE media_id = %s', (self.media_id, ))
-    return self.database.getGenre(result[0]['genre_id'])
+    if 'genre' in self.data:
+      return self.data['genre']
+    if 'genre_id' not in self.data:
+      result = self.database.query('SELECT genre_id FROM Media WHERE media_id = %s', (self.media_id, ))
+      self.data['genre_id'] = result[0]['genre_id']
+    self.data['genre'] = self.database.getGenre(self.data['genre_id'])
+    return self.data['genre']
 
   def setGenre(self, genre):
     self.database.execute('UPDATE Media SET genre_id = %s WHERE media_id = %s', (genre.getId(), self.media_id))
 
   def getDirector(self):
-    result = self.database.query('SELECT director_id FROM Media WHERE media_id = %s', (self.media_id, ))
-    return self.database.getDirector(result[0]['director_id'])
+    if 'director' in self.data:
+      return self.data['director']
+    if 'director_id' not in self.data:
+      result = self.database.query('SELECT director_id FROM Media WHERE media_id = %s', (self.media_id, ))
+      self.data['director_id'] = result[0]['director_id']
+    self.data['director'] = self.database.getDirector(self.data['director_id'])
+    return self.data['director']
 
   def setDirector(self, director):
     self.database.execute('UPDATE Media SET director_id = %s WHERE media_id = %s', (director.getId(), self.media_id))
@@ -65,22 +82,25 @@ class Media:
     self.database.execute('DELETE FROM MediaRating WHERE media_id = %s AND user_id = %s', (self.media_id, userID))
 
   def getAverageRating(self):
+    if 'averageRating' in self.data:
+      return self.data['averageRating']
     result = self.database.query('SELECT AVG(score) AS rating FROM MediaRating WHERE media_id = %s', (self.media_id, ))
-    return result[0]['rating']
+    self.data['averageRating'] = result[0]['rating']
+    return self.data['averageRating']
 
   def getStarringActors(self):
-    actors = []
-    results = self.database.query('SELECT actor_id FROM Actor WHERE actor_id IN (SELECT actor_id FROM StarsIn WHERE media_id = %s)', (self.media_id, ))
-    for actor in results:
-      actors.append(streamfinder.Actor.Actor(self.database, actor['actor_id']))
-    return actors
+    results = []
+    actors = self.database.query('SELECT * FROM StarsIn NATURAL JOIN Actor WHERE media_id = %s', (self.media_id, ))
+    for actorData in actors:
+      results.append(streamfinder.Actor.Actor(self.database, actorData))
+    return results
 
   def getNotStarringActors(self):
-    actors = []
-    results = self.database.query('SELECT actor_id FROM Actor WHERE actor_id NOT IN (SELECT actor_id FROM StarsIn WHERE media_id = %s)', (self.media_id, ))
-    for actor in results:
-      actors.append(streamfinder.Actor.Actor(self.database, actor['actor_id']))
-    return actors
+    results = []
+    actors = self.database.query('SELECT * FROM Actor WHERE actor_id NOT IN (SELECT actor_id FROM StarsIn WHERE media_id = %s)', (self.media_id, ))
+    for actorData in actors:
+      results.append(streamfinder.Actor.Actor(self.database, actorData))
+    return results
 
   def setStarredActors(self, actorList):
     self.database.beginTransaction(IsolationLevel.SERIALIZABLE)
@@ -95,18 +115,18 @@ class Media:
       self.database.rollbackTransaction()
 
   def getAvailableStreamingServices(self):
-    streamingServices = []
-    results = self.database.query('SELECT ss_id FROM StreamingService WHERE ss_id IN (SELECT ss_id FROM ViewableOn WHERE media_id = %s)', (self.media_id, ))
-    for streamingService in results:
-      streamingServices.append(streamfinder.StreamingService.StreamingService(self.database, streamingService['ss_id']))
-    return streamingServices
+    results = []
+    services = self.database.query('SELECT * FROM ViewableOn NATURAL JOIN StreamingService WHERE media_id = %s', (self.media_id, ))
+    for serviceData in services:
+      results.append(streamfinder.StreamingService.StreamingService(self.database, serviceData))
+    return results
 
   def getUnavailableStreamingServices(self):
-    streamingServices = []
-    results = self.database.query('SELECT ss_id FROM StreamingService WHERE ss_id NOT IN (SELECT ss_id FROM ViewableOn WHERE media_id = %s)', (self.media_id, ))
-    for streamingService in results:
-      streamingServices.append(streamfinder.StreamingService.StreamingService(self.database, streamingService['ss_id']))
-    return streamingServices
+    results = []
+    services = self.database.query('SELECT * FROM StreamingService WHERE ss_id NOT IN (SELECT ss_id FROM ViewableOn WHERE media_id = %s)', (self.media_id, ))
+    for serviceData in services:
+      results.append(streamfinder.StreamingService.StreamingService(self.database, serviceData))
+    return results
 
   def setAvailableStreamingServices(self, streamingServiceList):
     self.database.beginTransaction(IsolationLevel.SERIALIZABLE)

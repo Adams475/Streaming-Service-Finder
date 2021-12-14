@@ -520,5 +520,6 @@ def render_template_wrapper(*args, **kwargs):
     userInfo = None
     userID = session.get('userID')
     if userID is not None:
-        userInfo = json.dumps(db.Database().getUser(userID).toDict())
+      user = db.Database().getUser(userID)
+      userInfo = json.dumps({'user_id': user.user_id, 'username': user.getUsername()})
     return render_template(*args, userInfo=userInfo, **kwargs)

@@ -1,8 +1,8 @@
 {% extends "basePage.html" %}
-{% block title %} {% endblock %}
+{% block title %} Search {% endblock %}
 {% block content %}
 
-<h1>Search Results Page</h1>
+<h1>Search Page</h1>
 
 
 
@@ -37,11 +37,11 @@
             </tr>
              {% for actor in media.getNotStarringActors() %}
             <tr>
-             
+
               <td> {{actor.getName()}} </td>
               <td> {{actor.getSex()}} </td>
               <td> {{actor.getBirthDate()}} </td>
-              
+
             </tr>
             {% endfor %}
           </table>
@@ -74,15 +74,15 @@
               <th>Genre</th>
               <th>Director</th>
             </tr>
-         
+
              {% for media in actor.getMediasNotStarredIn() %}
-            <tr>             
+            <tr>
               <td> {{media.getName()}} </td>
               <td> {{media.getReleaseYear()}} </td>
-              <td> {{media.getGenre().getName() }} </td>              
-              <td> {{media.getDirector().getName()}} </td>  
+              <td> {{media.getGenre().getName() }} </td>
+              <td> {{media.getDirector().getName()}} </td>
             </tr>
-            {% endfor %}          
+            {% endfor %}
           </table>
         </td>
       </tr>
@@ -113,19 +113,19 @@
               <th>Genre</th>
               <th>Actors</th>
             </tr>
-         
+
              {% for media in director.getDirectedMedias() %}
-            <tr>             
+            <tr>
               <td> {{media.getName()}} </td>
               <td> {{media.getReleaseYear()}} </td>
-              <td> {{media.getGenre().getName() }} </td>              
-              <td> 
+              <td> {{media.getGenre().getName() }} </td>
+              <td>
                 {% for actor in media.getNotStarringActors() %}
                 {{actor.getName()}},
                 {% endfor %}
-              </td>  
+              </td>
             </tr>
-            {% endfor %}          
+            {% endfor %}
           </table>
         </td>
       </tr>
@@ -134,9 +134,9 @@
   </div>
   {% endif %}
 
- 
 
-  <input type="submit" value="Submit Changes">
+
+  <input type="submit" value="Search">
 </form>
 
 <style>
