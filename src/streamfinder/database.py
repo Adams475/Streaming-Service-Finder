@@ -287,6 +287,17 @@ class Database:
                           'LIMIT 5')
         return rows
 
+    ### Gets the number of each entity for the site statistics on the main page (index.html)
+    def getEntityCounts(self):
+        rows = self.query('SELECT "Users" AS type, COUNT(*) AS count FROM User '
+                          'UNION SELECT "Movies/Shows" AS type, COUNT(*) AS count FROM Media '
+                          'UNION SELECT "Actors" AS type, COUNT(*) AS count FROM Actor '
+                          'UNION SELECT "Directors" AS type, COUNT(*) AS count FROM Director '
+                          'UNION SELECT "Genres" AS type, COUNT(*) AS count FROM Genre '
+                          'UNION SELECT "Streaming Services" AS type, COUNT(*) AS count FROM StreamingService')
+        return rows
+
+    ### Gets the number of medias per genre
     def getGenreStats(self):
         result = self.query('SELECT COUNT(media_id), g.name '
                          'FROM Media as m JOIN Genre as g on m.genre_id = g.genre_id '

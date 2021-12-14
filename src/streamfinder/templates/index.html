@@ -41,25 +41,33 @@
     <div id="stats">
         <table id="statsTable">
             <tr>
-                <th colspan="5">Site Statistics</th>
+                <th colspan="2">Site Statistics</th>
             </tr>
             <tr>
-                <th>Genre Count</th>
-            </tr>
-            {%for number in genreStats%}
-            <tr>
-                <td>{{ number['name'] + ": " + number['COUNT(media_id)']|string }}</td>
-            </tr>
-            {%endfor%}
-            <tr>
-                <th>Total Media</th>
+                <th>Entity Count</th><th>Media Breakdown by Genre</th>
             </tr>
             <tr>
-                <td>{{mediaCount}}</td>
+                <td>
+                    <table>
+                        <tr><th>Entity Type</th><th>Number Registered</th></tr>
+                        {%for entity in entityCounts%}
+                        <tr><td>{{entity['type']}}</td><td>{{entity['count']}}</td></tr>
+                        {%endfor%}
+                    </table>
+                </td>
+                <td>
+                    <table>
+                        <tr><th>Genre Name</th><th>Number of Movies/Shows</th></tr>
+                        {%for number in genreStats%}
+                        <tr>
+                            <td>{{ number['name'] }}</td><td>{{ number['COUNT(media_id)'] }}</td>
+                        </tr>
+                        {%endfor%}
+                    </table>
+                </td>
             </tr>
         </table>
     </div>
-
 
 
 {% endblock %}

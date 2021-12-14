@@ -2,13 +2,14 @@
 {% block title %} Search {% endblock %}
 {% block content %}
 
+<b><p id="statusText" style="display: none;">{{ status }}</p></b>
+
 <h1>Search Page</h1>
 
-
+<p>Search the exact name of a movie, director, or actor!</p>
 
 <form id="searchForm" method="POST" action="{{ url_for('search') }}" onsubmit="">
-  <label for="name">Search: </label>
-  <input type="text" id="streamingServiceName" name="search" value="" required><br><br>
+  <input type="text" id="streamingServiceName" name="search" value="" placeholder="Search here" required><br><br>
 
   <!-- Media Available -->
   {% if media %}
@@ -149,4 +150,11 @@
     gap: .5rem;
   } */
 </style>
+
+<script>
+  let p = document.getElementById("statusText");
+  if (p.innerText !== "") {
+    p.style.display = "block";
+  }
+</script>
 {% endblock %}

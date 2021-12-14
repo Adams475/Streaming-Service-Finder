@@ -27,14 +27,14 @@ def run_website():
     database = db.Database()
     recentlyAddedMediaRows = database.getRecentlyAddedMediaRows()
     genreStats = database.getGenreStats()
-    mediaCount = database.getMediaCount()
     topMediaRows = database.getHighestRatedMediaRows()
+    entityCounts = database.getEntityCounts()
 
     userID = session.get('userID')
     message = "Anonymous User!" if userID is None else f"{database.getUser(int(userID)).getUsername()}!"
     return render_template_wrapper('index.html', recentlyAddedMediaRows=recentlyAddedMediaRows, status=status,
-                                    variable_from_python=message, genreStats=genreStats,
-                                    mediaCount=mediaCount, topMediaRows=topMediaRows)
+                                    variable_from_python=message, genreStats=genreStats, entityCounts=entityCounts,
+                                    topMediaRows=topMediaRows)
 
   ### Login / Register Page ###
   @app.route('/auth', methods=['GET'])
@@ -360,6 +360,7 @@ def run_website():
       actor = None
       director = None
       _id = None
+      status = ""
       if request.method == "POST":
           search_string = request.form.get('search')
           _id = database.getMediaByName(search_string)
@@ -376,8 +377,10 @@ def run_website():
               if _id != []:
                 director = database.getDirector(_id[0].director_id)
               print(director)
+      if media is None and actor is None and director is None:
+        status = "No results found. Make sure you spell their name correctly!"
 
-      return render_template_wrapper('search.html', media=media, actor=actor, director=director)
+      return render_template_wrapper('search.html', media=media, actor=actor, director=director, status=status)
 
 
   ### View/Edit Certain Genre ###
