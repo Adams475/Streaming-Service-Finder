@@ -44,6 +44,14 @@ html{
     border-radius: 0.5em;
 }
 
+a{
+    color: black;
+}
+
+a:hover{
+    color: rgb(83, 83, 83);
+}
+
 .HeaderItem a{
 	color: var(--highlight-on-background-color);
 }

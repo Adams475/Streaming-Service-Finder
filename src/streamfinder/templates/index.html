@@ -9,13 +9,13 @@
             <table id="mediaListTable">
                 <tr><th colspan="5">Recently added Movies and Shows</th></tr>
                 <tr><th>Name</th><th>Release Year</th><th>Genre</th><th>Director</th><th>Average Rating</th></tr>
-                {%for media in medias%}
+                {%for row in recentlyAddedMediaRows%}
                 <tr>
-                    <td><a href="{{ url_for('viewAndUpdateMedia', media_id=media.getId()) }}">{{ media.getName() }}</a></td>
-                    <td>{{ media.getReleaseYear() }}</td>
-                    <td><a href="{{ url_for('viewAndUpdateGenre', genre_id=media.getGenre().getId()) }}">{{ media.getGenre().getName() }}</a></td>
-                    <td><a href="{{ url_for('viewAndUpdateDirector', director_id=media.getDirector().getId()) }}">{{ media.getDirector().getName() }}</a></td>
-                    <td>{{ media.getAverageRating() }}</td>
+                    <td><a href="{{ url_for('viewAndUpdateMedia', media_id=row['media_id']) }}">{{ row['mediaName'] }}</a></td>
+                    <td>{{ row['releaseYear'] }}</td>
+                    <td><a href="{{ url_for('viewAndUpdateGenre', genre_id=row['genre_id']) }}">{{ row['genreName'] }}</a></td>
+                    <td><a href="{{ url_for('viewAndUpdateDirector', director_id=row['director_id']) }}">{{ row['directorName'] }}</a></td>
+                    <td>{{ row['averageRating'] }}</td>
                 </tr>
                 {%endfor%}
             </table>
@@ -24,13 +24,13 @@
             <table id="topMediaListTable">
                 <tr><th colspan="5">Highest Rated Movies And Shows</th></tr>
                 <tr><th>Name</th><th>Release Year</th><th>Genre</th><th>Director</th><th>Average Rating</th></tr>
-                {%for media in topMedia%}
+                {%for row in topMediaRows%}
                 <tr>
-                    <td><a href="{{ url_for('viewAndUpdateMedia', media_id=media.getId()) }}">{{ media.getName() }}</a></td>
-                    <td>{{ media.getReleaseYear() }}</td>
-                    <td><a href="{{ url_for('viewAndUpdateGenre', genre_id=media.getGenre().getId()) }}">{{ media.getGenre().getName() }}</a></td>
-                    <td><a href="{{ url_for('viewAndUpdateDirector', director_id=media.getDirector().getId()) }}">{{ media.getDirector().getName() }}</a></td>
-                    <td>{{ media.getAverageRating() }}</td>
+                    <td><a href="{{ url_for('viewAndUpdateMedia', media_id=row['media_id']) }}">{{ row['mediaName'] }}</a></td>
+                    <td>{{ row['releaseYear'] }}</td>
+                    <td><a href="{{ url_for('viewAndUpdateGenre', genre_id=row['genre_id']) }}">{{ row['genreName'] }}</a></td>
+                    <td><a href="{{ url_for('viewAndUpdateDirector', director_id=row['director_id']) }}">{{ row['directorName'] }}</a></td>
+                    <td>{{ row['averageRating'] }}</td>
                 </tr>
                 {%endfor%}
             </table>

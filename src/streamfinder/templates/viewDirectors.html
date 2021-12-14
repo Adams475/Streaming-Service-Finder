@@ -8,13 +8,14 @@
 
 <div id="directorList">
   <table id="directorListTable">
-    <tr><th colspan="3">Directors</th></tr>
-    <tr><th>Name</th><th>Sex</th><th>Birthday</th></tr>
-    {%for director in directors%}
+    <tr><th colspan="4">Directors</th></tr>
+    <tr><th>Name</th><th>Sex</th><th>Birthday</th><th>Average Rating</th></tr>
+    {%for row in directorTableRows%}
     <tr>
-      <td><a href="{{ url_for('viewAndUpdateDirector', director_id=director.getId()) }}">{{ director.getName() }}</a></td>
-      <td>{{ director.getSex() }}</td>
-      <td>{{ director.getBirthDate() }}</td>
+      <td><a href="{{ url_for('viewAndUpdateDirector', director_id=row['director_id']) }}">{{ row['name'] }}</a></td>
+      <td>{{ row['sex'] }}</td>
+      <td>{{ row['birthDate'] }}</td>
+      <td>{{ row['averageRating'] }}</td>
     </tr>
     {%endfor%}
   </table>

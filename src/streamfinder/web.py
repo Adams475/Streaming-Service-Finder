@@ -25,23 +25,16 @@ def run_website():
   def index():
     status = request.args.get('status') or ""
     database = db.Database()
-    medias = database.getRecentMedias()
-    genres = database.getAllGenres()
-    directors = database.getAllDirectors()
+    recentlyAddedMediaRows = database.getRecentlyAddedMediaRows()
     genreStats = database.getGenreStats()
     mediaCount = database.getMediaCount()
-    topMedia = database.getTopFiveMedias()
+    topMediaRows = database.getHighestRatedMediaRows()
 
     userID = session.get('userID')
-    if userID is None:
-      return render_template_wrapper('index.html', medias=medias, genres=genres, directors=directors,
-                                     variable_from_python="" + "Anonymous User" + "!", genreStats=genreStats,
-                                     mediaCount=mediaCount, topMedia=topMedia)
-    else:
-      user = database.getUser(int(userID))
-      return render_template_wrapper('index.html', medias=medias, genres=genres, directors=directors, status=status,
-                                    variable_from_python="" + user.getUsername() + "!", genreStats=genreStats,
-                                    mediaCount=mediaCount, topMedia=topMedia)
+    message = "Anonymous User!" if userID is None else f"{database.getUser(int(userID)).getUsername()}!"
+    return render_template_wrapper('index.html', recentlyAddedMediaRows=recentlyAddedMediaRows, status=status,
+                                    variable_from_python=message, genreStats=genreStats,
+                                    mediaCount=mediaCount, topMediaRows=topMediaRows)
 
   ### Login / Register Page ###
   @app.route('/auth', methods=['GET'])
@@ -302,25 +295,25 @@ def run_website():
   @app.route('/view/actor', methods=["GET"])
   def viewActors():
     status = request.args.get('status') or ""
-    actors = db.Database().getAllActors()
-    return render_template_wrapper('viewActors.html', actors=actors, status=status)
+    actorTableRows = db.Database().getActorTableRows()
+    return render_template_wrapper('viewActors.html', actorTableRows=actorTableRows, status=status)
 
   ### View All Directors ###
   @app.route('/view/director', methods=["GET"])
   def viewDirectors():
     status = request.args.get('status') or ""
-    directors = db.Database().getAllDirectors()
-    return render_template_wrapper('viewDirectors.html', directors=directors, status=status)
+    directorTableRows = db.Database().getDirectorTableRows()
+    return render_template_wrapper('viewDirectors.html', directorTableRows=directorTableRows, status=status)
 
   ### View All Media ###
   @app.route('/view/media', methods=["GET"])
   def viewMedias():
     status = request.args.get('status') or ""
     database = db.Database()
-    medias = database.getAllMedias()
+    mediaTableRows = database.getMediaTableRows()
     genres = database.getAllGenres()
     directors = database.getAllDirectors()
-    return render_template_wrapper('viewMedias.html', medias=medias, genres=genres, directors=directors, status=status)
+    return render_template_wrapper('viewMedias.html', mediaTableRows=mediaTableRows, genres=genres, directors=directors, status=status)
 
   ### View/Edit Certain Media ###
   @app.route('/view/media/<media_id>', methods=["GET", "POST"])

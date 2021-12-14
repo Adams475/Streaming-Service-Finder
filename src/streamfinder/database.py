@@ -208,38 +208,6 @@ class Database:
             result.append(Media(self, mediaData))
         return result
 
-    def getRecentMedias(self):
-        medias = self.query('SELECT * FROM Media ORDER BY media_id DESC LIMIT 5')
-        result = []
-        for mediaData in medias:
-            result.append(Media(self, mediaData))
-        return result
-
-    def getTopFiveMedias(self):
-
-        medias = self.query('SELECT media_id, AVG(score) AS rating '
-                            'FROM Media NATURAL JOIN MediaRating '
-                            'GROUP BY media_id '
-                            'ORDER BY rating DESC '
-                            'LIMIT 5')
-        result = []
-        for mediaData in medias:
-            result.append(Media(self, mediaData))
-        return result
-
-    def getGenreStats(self):
-        val = self.query('SELECT COUNT(media_id), g.name '
-                         'FROM Media as m JOIN Genre as g on m.genre_id = g.genre_id '
-                         'GROUP BY m.genre_id')
-        result = []
-        for item in val:
-            result.append(item)
-        return result
-
-    def getMediaCount(self):
-        val = self.query('SELECT COUNT(media_id) FROM Media')[0]
-        return val['COUNT(media_id)']
-
     def createUser(self, username, hashedPassword):
         user_id = self.execute('INSERT INTO User(username, hashedPassword) VALUES (%s, %s)', (username, hashedPassword))
         return User(self, {'user_id': user_id, 'username': username, 'hashedPassword': hashedPassword})
@@ -266,4 +234,65 @@ class Database:
                                 (name, year, genre.getId(), director.getId()))
         return Media(self, {'media_id': media_id, 'name': name, 'releaseYear': year, 'genre_id': genre.getId(), 'director_id': director.getId()})
 
+    ########### Specifc Queries for Webpages ###########
 
+    ### Get table rows for all medias page (viewMedias.html)
+    def getMediaTableRows(self):
+        rows = self.query('SELECT M.name AS mediaName, M.media_id, M.releaseYear, '
+                          '  G.name AS genreName, G.genre_id, D.name AS directorName, D.director_id, '
+                          '  AVG(MediaRating.score) AS averageRating '
+                          'FROM (Media M LEFT OUTER JOIN MediaRating ON M.media_id = MediaRating.media_id)'
+                          '  JOIN Genre G ON M.genre_id = G.genre_id '
+                          '  JOIN Director D ON M.director_id = D.director_id '
+                          'GROUP BY M.media_id')
+        return rows
+
+    ### Get table rows for all actors page (viewActors.html)
+    def getActorTableRows(self):
+        rows = self.query('SELECT Actor.actor_id, name, sex, birthDate, AVG(score) AS averageRating '
+                          'FROM Actor LEFT OUTER JOIN ActorRating ON Actor.actor_id = ActorRating.actor_id '
+                          'GROUP BY actor_id')
+        return rows
+
+    ### Get table rows for all directors page (viewDirectors.html)
+    def getDirectorTableRows(self):
+        rows = self.query('SELECT Director.director_id, name, sex, birthDate, AVG(score) AS averageRating '
+                          'FROM Director LEFT OUTER JOIN DirectorRating ON Director.director_id = DirectorRating.director_id '
+                          'GROUP BY director_id')
+        return rows
+
+    ### Get table rows for recently added media on main page (index.html)
+    def getRecentlyAddedMediaRows(self):
+        rows = self.query('SELECT M.name AS mediaName, M.media_id, M.releaseYear, '
+                          '  G.name AS genreName, G.genre_id, D.name AS directorName, D.director_id, '
+                          '  AVG(MediaRating.score) AS averageRating '
+                          'FROM (Media M LEFT OUTER JOIN MediaRating ON M.media_id = MediaRating.media_id)'
+                          '  JOIN Genre G ON M.genre_id = G.genre_id '
+                          '  JOIN Director D ON M.director_id = D.director_id '
+                          'GROUP BY M.media_id '
+                          'ORDER BY M.media_id DESC '
+                          'LIMIT 5')
+        return rows
+
+    ### Get table rows for top-rated media on main page (index.html)
+    def getHighestRatedMediaRows(self):
+        rows = self.query('SELECT M.name AS mediaName, M.media_id, M.releaseYear, '
+                          '  G.name AS genreName, G.genre_id, D.name AS directorName, D.director_id, '
+                          '  AVG(MediaRating.score) AS averageRating '
+                          'FROM (Media M NATURAL JOIN MediaRating)'
+                          '  JOIN Genre G ON M.genre_id = G.genre_id '
+                          '  JOIN Director D ON M.director_id = D.director_id '
+                          'GROUP BY M.media_id '
+                          'ORDER BY averageRating DESC '
+                          'LIMIT 5')
+        return rows
+
+    def getGenreStats(self):
+        result = self.query('SELECT COUNT(media_id), g.name '
+                         'FROM Media as m JOIN Genre as g on m.genre_id = g.genre_id '
+                         'GROUP BY m.genre_id')
+        return result
+
+    def getMediaCount(self):
+        val = self.query('SELECT COUNT(media_id) FROM Media')[0]
+        return val['COUNT(media_id)']
