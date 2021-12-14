@@ -1,6 +1,7 @@
 import mysql.connector
 from enum import Enum
 
+
 # Enum for setting isolation levels
 class IsolationLevel(Enum):
     READ_UNCOMMITTED = "READ UNCOMMITTED"
@@ -83,82 +84,82 @@ class Database:
     ###########################################################################
 
     def getStreamingService(self, ss_id):
-        result = self.query('SELECT COUNT(*) AS cnt FROM StreamingService WHERE ss_id = %s', (ss_id, ))
+        result = self.query('SELECT COUNT(*) AS cnt FROM StreamingService WHERE ss_id = %s', (ss_id,))
         if result[0]['cnt'] == 0:
             return None
         return StreamingService(self, ss_id)
 
     def getStreamingServiceByName(self, name):
         name = name.lower()
-        services = self.query('SELECT ss_id FROM StreamingService WHERE LOWER(name) LIKE %s', (name, ))
+        services = self.query('SELECT ss_id FROM StreamingService WHERE LOWER(name) LIKE %s', (name,))
         output = []
         for service in services:
             output.append(StreamingService(self, service['ss_id']))
         return output
 
     def getGenre(self, genre_id):
-        result = self.query('SELECT COUNT(*) AS cnt FROM Genre WHERE genre_id = %s', (genre_id, ))
+        result = self.query('SELECT COUNT(*) AS cnt FROM Genre WHERE genre_id = %s', (genre_id,))
         if result[0]['cnt'] == 0:
             return None
         return Genre(self, genre_id)
 
     def getGenreByName(self, name):
         name = name.lower()
-        genres = self.query('SELECT genre_id FROM Genre WHERE LOWER(name) LIKE %s', (name, ))
+        genres = self.query('SELECT genre_id FROM Genre WHERE LOWER(name) LIKE %s', (name,))
         output = []
         for genre in genres:
             output.append(Genre(self, genre['genre_id']))
         return output
 
     def getDirector(self, director_id):
-        result = self.query('SELECT COUNT(*) AS cnt FROM Director WHERE director_id = %s', (director_id, ))
+        result = self.query('SELECT COUNT(*) AS cnt FROM Director WHERE director_id = %s', (director_id,))
         if result[0]['cnt'] == 0:
             return None
         return Director(self, director_id)
 
     def getDirectorByName(self, name):
         name = name.lower()
-        directors = self.query('SELECT director_id FROM Director WHERE LOWER(name) LIKE %s', (name, ))
+        directors = self.query('SELECT director_id FROM Director WHERE LOWER(name) LIKE %s', (name,))
         output = []
         for director in directors:
             output.append(Director(self, director['director_id']))
         return output
 
     def getActor(self, actor_id):
-        result = self.query('SELECT COUNT(*) AS cnt FROM Actor WHERE actor_id = %s', (actor_id, ))
+        result = self.query('SELECT COUNT(*) AS cnt FROM Actor WHERE actor_id = %s', (actor_id,))
         if result[0]['cnt'] == 0:
             return None
         return Actor(self, actor_id)
 
     def getActorByName(self, name):
         name = name.lower()
-        actors = self.query('SELECT actor_id FROM Actor WHERE LOWER(name) LIKE %s', (name, ))
+        actors = self.query('SELECT actor_id FROM Actor WHERE LOWER(name) LIKE %s', (name,))
         output = []
         for actor in actors:
             output.append(Actor(self, actor['actor_id']))
         return output
 
     def getUser(self, user_id):
-        result = self.query('SELECT COUNT(*) AS cnt FROM User WHERE user_id = %s', (user_id, ))
+        result = self.query('SELECT COUNT(*) AS cnt FROM User WHERE user_id = %s', (user_id,))
         if result[0]['cnt'] == 0:
             return None
         return User(self, user_id)
 
     def getUserByUsername(self, username):
-        result = self.query('SELECT user_id FROM User WHERE username = %s', (username, ))
+        result = self.query('SELECT user_id FROM User WHERE username = %s', (username,))
         if len(result) == 0:
             return None
         return User(self, result[0]['user_id'])
 
     def getMedia(self, media_id):
-        result = self.query('SELECT COUNT(*) AS cnt FROM Media WHERE media_id = %s', (media_id, ))
+        result = self.query('SELECT COUNT(*) AS cnt FROM Media WHERE media_id = %s', (media_id,))
         if result[0]['cnt'] == 0:
             return None
         return Media(self, media_id)
 
     def getMediaByName(self, name):
         name = name.lower()
-        medias = self.query('SELECT media_id FROM Media WHERE LOWER(name) LIKE %s', (name, ))
+        medias = self.query('SELECT media_id FROM Media WHERE LOWER(name) LIKE %s', (name,))
         output = []
         for media in medias:
             output.append(Media(self, media['media_id']))
@@ -206,6 +207,47 @@ class Database:
             result.append(Media(self, media['media_id']))
         return result
 
+    def getRecentMedias(self):
+        medias = self.query('SELECT media_id FROM Media ORDER BY media_id DESC LIMIT 5')
+        result = []
+        for media in medias:
+            result.append(Media(self, media['media_id']))
+        return result
+
+    def getTopFiveMedias(self):
+        medias = self.query('SELECT media_id FROM Media')
+        temp = []
+        result = []
+        for media in medias:
+            temp.append(Media(self, media['media_id']))
+        for i in range(len(temp)):
+            for j in range(0, len(temp) - i - 1):
+                if temp[j].getAverageRating() is not None and temp[j + 1].getAverageRating() is not None and \
+                        temp[j].getAverageRating() > temp[j + 1].getAverageRating():
+                    temp[j], temp[j + 1] = temp[j + 1], temp[j]
+                elif temp[j].getAverageRating() is not None and temp[j + 1].getAverageRating() is None:
+                    temp[j], temp[j + 1] = temp[j + 1], temp[j]
+
+        for media in reversed(temp):
+            if len(result) == 5 or media.getAverageRating() is None:
+                break
+            result.append(media)
+
+        return result
+
+    def getGenreStats(self):
+        val = self.query('SELECT COUNT(media_id), g.name'
+                         ' FROM Media as m JOIN Genre as g on m.genre_id = g.genre_id '
+                         ' GROUP BY m.genre_id')
+        result = []
+        for item in val:
+            result.append(item)
+        return result
+
+    def getMediaCount(self):
+        val = self.query('SELECT COUNT(media_id) FROM Media')[0]
+        return val['COUNT(media_id)']
+
     def createUser(self, username, hashedPassword):
         user_id = self.execute('INSERT INTO User(username, hashedPassword) VALUES (%s, %s)', (username, hashedPassword))
         return User(self, user_id)
@@ -215,7 +257,7 @@ class Database:
         return Genre(self, genre_id)
 
     def createStreamingService(self, name):
-        ss_id = self.execute('INSERT INTO StreamingService(name) VALUES(%s)', (name, ))
+        ss_id = self.execute('INSERT INTO StreamingService(name) VALUES(%s)', (name,))
         return StreamingService(self, ss_id)
 
     def createActor(self, name, sex='Unspecified', birthDate='?'):
@@ -223,11 +265,13 @@ class Database:
         return Actor(self, actor_id)
 
     def createDirector(self, name, sex='Unspecified', birthDate='?'):
-        director_id = self.execute('INSERT INTO Director(name, sex, birthDate) VALUES(%s, %s, %s)', (name, sex, birthDate))
+        director_id = self.execute('INSERT INTO Director(name, sex, birthDate) VALUES(%s, %s, %s)',
+                                   (name, sex, birthDate))
         return Director(self, director_id)
 
     def createMedia(self, name, year, genre, director):
-        media_id = self.execute('INSERT INTO Media(name, releaseYear, genre_id, director_id) VALUES(%s, %s, %s, %s)', (name, year, genre.getId(), director.getId()))
+        media_id = self.execute('INSERT INTO Media(name, releaseYear, genre_id, director_id) VALUES(%s, %s, %s, %s)',
+                                (name, year, genre.getId(), director.getId()))
         return Media(self, media_id)
 
   
