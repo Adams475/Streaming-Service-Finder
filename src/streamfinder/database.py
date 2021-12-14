@@ -303,7 +303,3 @@ class Database:
                          'FROM Media as m JOIN Genre as g on m.genre_id = g.genre_id '
                          'GROUP BY m.genre_id')
         return result
-
-    def getMediaCount(self):
-        val = self.query('SELECT COUNT(media_id) FROM Media')[0]
-        return val['COUNT(media_id)']

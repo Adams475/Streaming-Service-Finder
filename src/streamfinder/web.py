@@ -377,7 +377,7 @@ def run_website():
               if _id != []:
                 director = database.getDirector(_id[0].director_id)
               print(director)
-      if media is None and actor is None and director is None:
+      if request.method == "POST" and media is None and actor is None and director is None:
         status = "No results found. Make sure you spell their name correctly!"
 
       return render_template_wrapper('search.html', media=media, actor=actor, director=director, status=status)
