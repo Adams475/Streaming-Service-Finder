@@ -1,0 +1,152 @@
+{% extends "basePage.html" %}
+{% block title %} {% endblock %}
+{% block content %}
+
+<h1>Search Results Page</h1>
+
+
+
+<form id="searchForm" method="POST" action="{{ url_for('search') }}" onsubmit="">
+  <label for="name">Search: </label>
+  <input type="text" id="streamingServiceName" name="search" value="" required><br><br>
+
+  <!-- Media Available -->
+  {% if media %}
+  <div class="mediaList">
+    <table id="mediaListTable">
+      <tr>
+        <th>Name</th>
+        <th>Release Year</th>
+        <th>Director</th>
+        <th>Sex</th>
+        <th>Birthday</th>
+        <th>Actors</th>
+        </tr>
+      <tr>
+        <td>{{media.getName()}}</td>
+        <td> {{media.getReleaseYear()}} </td>
+        <td> {{media.getDirector().getName()}} </td>
+        <td> {{media.getDirector().getSex()}} </td>
+        <td> {{media.getDirector().getBirthDate()}} </td>
+        <td class="cellArray">
+          <table>
+            <tr>
+              <th>Name</th>
+              <th>Sex</th>
+              <th>Birthday</th>
+            </tr>
+             {% for actor in media.getNotStarringActors() %}
+            <tr>
+             
+              <td> {{actor.getName()}} </td>
+              <td> {{actor.getSex()}} </td>
+              <td> {{actor.getBirthDate()}} </td>
+              
+            </tr>
+            {% endfor %}
+          </table>
+        </td>
+      </tr>
+
+    </table><br>
+  </div>
+  {% endif %}
+
+  <!-- Actor Available -->
+  {% if actor  %}
+  <div class="mediaList">
+    <table id="mediaListTable">
+      <tr>
+        <th>Name</th>
+        <th>Sex</th>
+        <th>Birthday</th>
+        <th>Movies</th>
+        </tr>
+      <tr>
+        <td>{{actor.getName() or director.getName() }}  </td>
+        <td> {{actor.getSex() or director.getSex()}} </td>
+        <td> {{actor.getBirthDate() or director.getBirthDate()}}</td>
+        <td class="cellArray">
+          <table>
+            <tr>
+              <th>Name</th>
+              <th>Release Year</th>
+              <th>Genre</th>
+              <th>Director</th>
+            </tr>
+         
+             {% for media in actor.getMediasNotStarredIn() %}
+            <tr>             
+              <td> {{media.getName()}} </td>
+              <td> {{media.getReleaseYear()}} </td>
+              <td> {{media.getGenre().getName() }} </td>              
+              <td> {{media.getDirector().getName()}} </td>  
+            </tr>
+            {% endfor %}          
+          </table>
+        </td>
+      </tr>
+
+    </table><br>
+  </div>
+  {% endif %}
+
+  <!-- Director Available -->
+  {% if director  %}
+  <div class="mediaList">
+    <table id="mediaListTable">
+      <tr>
+        <th>Name</th>
+        <th>Sex</th>
+        <th>Birthday</th>
+        <th>Movies</th>
+        </tr>
+      <tr>
+        <td>{{director.getName() or director.getName() }}  </td>
+        <td> {{director.getSex() or director.getSex()}} </td>
+        <td> {{director.getBirthDate() or director.getBirthDate()}}</td>
+        <td class="cellArray">
+          <table>
+            <tr>
+              <th>Name</th>
+              <th>Release Year</th>
+              <th>Genre</th>
+              <th>Actors</th>
+            </tr>
+         
+             {% for media in director.getDirectedMedias() %}
+            <tr>             
+              <td> {{media.getName()}} </td>
+              <td> {{media.getReleaseYear()}} </td>
+              <td> {{media.getGenre().getName() }} </td>              
+              <td> 
+                {% for actor in media.getNotStarringActors() %}
+                {{actor.getName()}},
+                {% endfor %}
+              </td>  
+            </tr>
+            {% endfor %}          
+          </table>
+        </td>
+      </tr>
+
+    </table><br>
+  </div>
+  {% endif %}
+
+ 
+
+  <input type="submit" value="Submit Changes">
+</form>
+
+<style>
+  /* .cell{
+    border: 1px solid black;
+  }
+  .cellArray{
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  } */
+</style>
+{% endblock %}
