@@ -19,14 +19,24 @@ def run_website():
   app.config['SECRET_KEY'] = "It's a secret to everybody..."
 
   ### Main Page ###
-  @app.route('/')
+  @app.route('/', methods=["GET"])
   def index():
     userID = session.get('userID')
     if userID is None:
-       return render_template_wrapper('index.html', variable_from_python="Hello, anonymous user!")
+       return render_template_wrapper('index.html', variable_from_python="anonymous user!")
 
     user = db.Database().getUser(int(userID))
-    return render_template_wrapper('index.html', variable_from_python="Hello, " + user.getUsername() + "!")
+    status = request.args.get('status') or ""
+    medias = db.Database().getRecentMedias()
+    genres = db.Database().getAllGenres()
+    directors = db.Database().getAllDirectors()
+    genreStats = db.Database().getGenreStats()
+    mediaCount = db.Database().getMediaCount()
+    topMedia = db.Database().getTopFiveMedias()
+    return render_template_wrapper('index.html', medias=medias, genres=genres, directors=directors, status=status,
+                                   variable_from_python="" + user.getUsername() + "!", genreStats=genreStats,
+                                   mediaCount=mediaCount, topMedia=topMedia)
+
 
   ### Login / Register Page ###
   @app.route('/auth', methods=['GET'])
