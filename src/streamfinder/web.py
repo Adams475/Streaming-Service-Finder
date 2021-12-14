@@ -23,7 +23,15 @@ def run_website():
   def index():
     userID = session.get('userID')
     if userID is None:
-       return render_template_wrapper('index.html', variable_from_python="anonymous user!")
+      medias = db.Database().getRecentMedias()
+      genres = db.Database().getAllGenres()
+      directors = db.Database().getAllDirectors()
+      genreStats = db.Database().getGenreStats()
+      mediaCount = db.Database().getMediaCount()
+      topMedia = db.Database().getTopFiveMedias()
+      return render_template_wrapper('index.html', medias=medias, genres=genres, directors=directors,
+                                     variable_from_python="" + "Anonymous User" + "!", genreStats=genreStats,
+                                     mediaCount=mediaCount, topMedia=topMedia)
 
     user = db.Database().getUser(int(userID))
     status = request.args.get('status') or ""
