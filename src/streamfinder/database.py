@@ -215,30 +215,20 @@ class Database:
         return result
 
     def getTopFiveMedias(self):
-        medias = self.query('SELECT media_id FROM Media')
-        temp = []
-        result = []
-        for media in medias:
-            temp.append(Media(self, media['media_id']))
-        for i in range(len(temp)):
-            for j in range(0, len(temp) - i - 1):
-                if temp[j].getAverageRating() is not None and temp[j + 1].getAverageRating() is not None and \
-                        temp[j].getAverageRating() > temp[j + 1].getAverageRating():
-                    temp[j], temp[j + 1] = temp[j + 1], temp[j]
-                elif temp[j].getAverageRating() is not None and temp[j + 1].getAverageRating() is None:
-                    temp[j], temp[j + 1] = temp[j + 1], temp[j]
 
-        for media in reversed(temp):
-            if len(result) == 5 or media.getAverageRating() is None:
-                break
-            result.append(media)
+        results = self.query('SELECT media_id, AVG(score) AS rating '
+                             'FROM Media NATURAL JOIN MediaRating '
+                             'GROUP BY media_id '
+                             'ORDER BY rating DESC '
+                             'LIMIT 5')
+        medias = list(map(lambda x: Media(self, x['media_id']), results))
 
-        return result
+        return medias
 
     def getGenreStats(self):
-        val = self.query('SELECT COUNT(media_id), g.name'
-                         ' FROM Media as m JOIN Genre as g on m.genre_id = g.genre_id '
-                         ' GROUP BY m.genre_id')
+        val = self.query('SELECT COUNT(media_id), g.name '
+                         'FROM Media as m JOIN Genre as g on m.genre_id = g.genre_id '
+                         'GROUP BY m.genre_id')
         result = []
         for item in val:
             result.append(item)

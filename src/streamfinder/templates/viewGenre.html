@@ -15,9 +15,9 @@
     <tr><th>Name</th><th>Release Year</th><th>Director</th></tr>
     {%for media in genre.getCorrespondingMedia()%}
     <tr>
-      <td>{{ media.getName() }}</td>
+      <td><a href="{{ url_for('viewAndUpdateMedia', media_id=media.getId()) }}">{{ media.getName() }}</a></td>
       <td>{{ media.getReleaseYear() }}</td>
-      <td>{{ media.getDirector().getName() }}</td>
+      <td><a href="{{ url_for('viewAndUpdateDirector', director_id=media.getDirector().getId()) }}">{{ media.getDirector().getName() }}</a></td>
     </tr>
     {%endfor%}
   </table><br>

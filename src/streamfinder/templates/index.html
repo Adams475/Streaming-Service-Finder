@@ -22,7 +22,7 @@
         </div>
         <div id="topMediaList">
             <table id="topMediaListTable">
-                <tr><th colspan="5">Highest Rated Media</th></tr>
+                <tr><th colspan="5">Highest Rated Movies And Shows</th></tr>
                 <tr><th>Name</th><th>Release Year</th><th>Genre</th><th>Director</th><th>Average Rating</th></tr>
                 {%for media in topMedia%}
                 <tr>
@@ -35,25 +35,29 @@
                 {%endfor%}
             </table>
         </div>
-        <div id="stats">
-            <table id="statsTable">
-                <tr><th colspan="5">Site Statistics</th></tr>
-                <tr>
-                    <th>Genre Count</th>
-                </tr>
-                {%for number in genreStats%}
-                <tr>
-                    <td>{{ number['name'] + ": " + number['COUNT(media_id)']|string }}</td>
-                    {%endfor%}
-                </tr>
-                <tr>
-                    <th>Total Media</th>
-                </tr>
-                <tr>
-                    <td>{{mediaCount}}</td>
-                </tr>
-            </table>
-        </div>
+    </div>
+    <br><br>
+
+    <div id="stats">
+        <table id="statsTable">
+            <tr>
+                <th colspan="5">Site Statistics</th>
+            </tr>
+            <tr>
+                <th>Genre Count</th>
+            </tr>
+            {%for number in genreStats%}
+            <tr>
+                <td>{{ number['name'] + ": " + number['COUNT(media_id)']|string }}</td>
+            </tr>
+            {%endfor%}
+            <tr>
+                <th>Total Media</th>
+            </tr>
+            <tr>
+                <td>{{mediaCount}}</td>
+            </tr>
+        </table>
     </div>
 
 
