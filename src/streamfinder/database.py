@@ -40,7 +40,7 @@ class Database:
 
     ### Wrapper function for select statements, returns list of dicts of matches
     ### Uses READ COMMITTED unless specified otherwise
-    def query(self, query, arguments=(), isolationLevel=IsolationLevel.READ_COMMITTED):
+    def query(self, query, arguments=(), isolationLevel=IsolationLevel.READ_UNCOMMITTED):
 
         self.beginTransaction(isolationLevel)
 
@@ -62,8 +62,8 @@ class Database:
         return result
 
     ### Wrapper function to execute insert/update/delete statements using the specified isolation level
-    ### Uses REPEATABLE READ unless specified otherwise
-    def execute(self, command, arguments=(), isolationLevel=IsolationLevel.REPEATABLE_READ):
+    ### Uses READ COMMITTED unless specified otherwise
+    def execute(self, command, arguments=(), isolationLevel=IsolationLevel.READ_COMMITTED):
         print(f"\nHandled Command: '{command}' with arguments '{arguments}'")
         self.beginTransaction(isolationLevel)
         cursor = self.conn.cursor()
@@ -74,7 +74,7 @@ class Database:
             cursor.close()
             return row
         except:
-            print("Error in runSQL")
+            print("Error in execute")
             print(f"Command: {command} with arguments {arguments}")
             self.rollbackTransaction()
             cursor.close()

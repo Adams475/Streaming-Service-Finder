@@ -38,7 +38,7 @@ class StreamingService:
     return medias
 
   def setAvailableMedia(self, mediaList):
-    self.database.beginTransaction(IsolationLevel.SERIALIZABLE)
+    self.database.beginTransaction(IsolationLevel.READ_COMMITTED)
     cursor = self.database.conn.cursor()
     try:
       cursor.execute('DELETE FROM ViewableOn WHERE ss_id = %s', (self.ss_id, ))
@@ -47,5 +47,6 @@ class StreamingService:
       cursor.close()
       self.database.commitTransaction()
     except:
+      cursor.close()
       self.database.rollbackTransaction()
 

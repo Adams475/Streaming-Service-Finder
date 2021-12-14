@@ -50,7 +50,7 @@ class Actor:
     return medias
 
   def setStarredMedias(self, mediaList):
-    self.database.beginTransaction(streamfinder.database.IsolationLevel.SERIALIZABLE)
+    self.database.beginTransaction(streamfinder.database.IsolationLevel.READ_COMMITTED)
     cursor = self.database.conn.cursor()
     try:
       cursor.execute('DELETE FROM StarsIn WHERE actor_id = %s', (self.actor_id, ))
@@ -59,6 +59,7 @@ class Actor:
       cursor.close()
       self.database.commitTransaction()
     except:
+      cursor.close()
       self.database.rollbackTransaction()
 
   def addRating(self, userID, score):
