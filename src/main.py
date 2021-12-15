@@ -22,6 +22,8 @@ def render_template_wrapper(*args, **kwargs):
     userID = session.get('userID')
     if userID is not None:
       user = db.Database().getUser(userID)
+      if user is None:
+        return redirect(url_for('logout'))
       userInfo = json.dumps({'user_id': user.user_id, 'username': user.getUsername()})
     return render_template(*args, userInfo=userInfo, **kwargs)
 
@@ -36,7 +38,12 @@ def index():
   entityCounts = database.getEntityCounts()
 
   userID = session.get('userID')
-  message = "Anonymous User!" if userID is None else f"{database.getUser(int(userID)).getUsername()}!"
+  user = None
+  if userID is not None:
+    user = database.getUser(int(userID))
+  message = "Anonymous User!"
+  if userID is not None and user is not None:
+    message = user.getUsername() + "!"
   return render_template_wrapper('index.html', recentlyAddedMediaRows=recentlyAddedMediaRows, status=status,
                                   variable_from_python=message, genreStats=genreStats, entityCounts=entityCounts,
                                   topMediaRows=topMediaRows)

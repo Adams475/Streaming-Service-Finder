@@ -63,14 +63,14 @@ class Database:
         cursor.close()
         self.commitTransaction()
 
-        print(f"\nHandled Query: '{query}' with arguments '{arguments}'")
-        print(result)
+        #print(f"\nHandled Query: '{query}' with arguments '{arguments}'")
+        #print(result)
         return result
 
     ### Wrapper function to execute insert/update/delete statements using the specified isolation level
     ### Uses READ COMMITTED unless specified otherwise
     def execute(self, command, arguments=(), isolationLevel=IsolationLevel.READ_COMMITTED):
-        print(f"\nHandled Command: '{command}' with arguments '{arguments}'")
+        #print(f"\nHandled Command: '{command}' with arguments '{arguments}'")
         self.beginTransaction(isolationLevel)
         cursor = self.conn.cursor()
         try:
@@ -80,7 +80,7 @@ class Database:
             cursor.close()
             return row
         except:
-            print("Error in execute")
+            print("Error while executing SQL command")
             print(f"Command: {command} with arguments {arguments}")
             self.rollbackTransaction()
             cursor.close()
