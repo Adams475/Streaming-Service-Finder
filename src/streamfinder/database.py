@@ -40,7 +40,7 @@ class Database:
         self.conn.rollback()
 
     ### Wrapper function for select statements, returns list of dicts of matches
-    ### Uses READ COMMITTED unless specified otherwise
+    ### Uses READ UNCOMMITTED unless specified otherwise
     def query(self, query, arguments=(), isolationLevel=IsolationLevel.READ_UNCOMMITTED):
 
         self.beginTransaction(isolationLevel)
@@ -300,6 +300,6 @@ class Database:
     ### Gets the number of medias per genre
     def getGenreStats(self):
         result = self.query('SELECT COUNT(media_id), g.name '
-                         'FROM Media as m JOIN Genre as g on m.genre_id = g.genre_id '
-                         'GROUP BY m.genre_id')
+                            'FROM Media as m JOIN Genre as g on m.genre_id = g.genre_id '
+                            'GROUP BY m.genre_id')
         return result

@@ -65,7 +65,8 @@ class Actor:
     try:
       cursor.execute('DELETE FROM StarsIn WHERE actor_id = %s', (self.actor_id, ))
       for media in mediaList:
-        cursor.execute('INSERT INTO StarsIn(media_id, actor_id) VALUES (%s, %s)', (media.getId(), self.actor_id))
+        cursor.execute('INSERT INTO StarsIn(media_id, actor_id) VALUES (%s, %s)',
+        (media.getId(), self.actor_id))
       cursor.close()
       self.database.commitTransaction()
     except:
