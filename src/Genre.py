@@ -1,4 +1,4 @@
-import streamfinder.Media
+import Media
 
 class Genre:
 
@@ -38,5 +38,5 @@ class Genre:
     results = []
     medias = self.database.query('SELECT * FROM Media WHERE genre_id = %s', (self.genre_id, ))
     for mediaData in medias:
-      results.append(streamfinder.Media.Media(self.database, mediaData))
+      results.append(Media.Media(self.database, mediaData))
     return results

@@ -1,8 +1,8 @@
 import json
 
-import streamfinder.Actor
-import streamfinder.Director
-import streamfinder.Media
+import Actor
+import Director
+import Media
 
 class User:
 
@@ -59,19 +59,19 @@ class User:
     results = []
     actors = self.database.query('SELECT * FROM Actor WHERE actor_id NOT IN (SELECT actor_id FROM ActorRating WHERE user_id = %s)', (self.user_id, ))
     for actorData in actors:
-      results.append(streamfinder.Actor.Actor(self.database, actorData))
+      results.append(Actor.Actor(self.database, actorData))
     return results
 
   def getDirectorsNotRated(self):
     results = []
     directors = self.database.query('SELECT * FROM Director WHERE director_id NOT IN (SELECT director_id FROM DirectorRating WHERE user_id = %s)', (self.user_id, ))
     for directorData in directors:
-      results.append(streamfinder.Director.Director(self.database, directorData))
+      results.append(Director.Director(self.database, directorData))
     return results
 
   def getMediasNotRated(self):
     results = []
     medias = self.database.query('SELECT * FROM Media WHERE media_id NOT IN (SELECT media_id FROM MediaRating WHERE user_id = %s)', (self.user_id, ))
     for mediaData in medias:
-      results.append(streamfinder.Media.Media(self.database, mediaData))
+      results.append(Media.Media(self.database, mediaData))
     return results

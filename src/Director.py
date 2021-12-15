@@ -1,4 +1,4 @@
-import streamfinder.Media
+import Media
 
 class Director:
 
@@ -48,7 +48,7 @@ class Director:
     results = []
     medias = self.database.query('SELECT * FROM Media WHERE director_id = %s', (self.director_id, ))
     for mediaData in medias:
-      results.append(streamfinder.Media.Media(self.database, mediaData))
+      results.append(Media.Media(self.database, mediaData))
     return results
 
   def addRating(self, userID, score):

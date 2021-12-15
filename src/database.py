@@ -9,23 +9,28 @@ class IsolationLevel(Enum):
     REPEATABLE_READ = "REPEATABLE READ"
     SERIALIZABLE = "SERIALIZABLE"
 
-from streamfinder.StreamingService import StreamingService
-from streamfinder.Genre import Genre
-from streamfinder.Director import Director
-from streamfinder.Actor import Actor
-from streamfinder.User import User
-from streamfinder.Media import Media
+from StreamingService import StreamingService
+from Genre import Genre
+from Director import Director
+from Actor import Actor
+from User import User
+from Media import Media
 
 class Database:
 
     ### Set up connection with MySQL database on Google Cloud
     def __init__(self):
-        self.conn = mysql.connector.connect(
-            host="34.69.18.126",
-            user="root",
-            password="streamfinderCS348!",
-            database="streamfinder"
-        )
+        self.conn = None
+        while self.conn is None:
+            try:
+                self.conn = mysql.connector.connect(
+                    host="35.225.83.254",
+                    user="root",
+                    password="streamfinderCS348!",
+                    database="streamfinder"
+                )
+            except:
+                print("Failed to connect: trying again.")
 
     ### Wrapper function that begins a transaction with the specified isolation level (from enum)
     def beginTransaction(self, isolationLevel):

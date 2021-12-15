@@ -1,5 +1,5 @@
-import streamfinder.Media
-import streamfinder.database
+import Media
+import database
 
 class Actor:
 
@@ -49,18 +49,18 @@ class Actor:
     results = []
     medias = self.database.query('SELECT * FROM StarsIn NATURAL JOIN Media WHERE actor_id = %s', (self.actor_id, ))
     for mediaData in medias:
-      results.append(streamfinder.Media.Media(self.database, mediaData))
+      results.append(Media.Media(self.database, mediaData))
     return results
 
   def getMediasNotStarredIn(self):
     results = []
     medias = self.database.query('SELECT * FROM Media WHERE media_id NOT IN (SELECT media_id FROM StarsIn WHERE actor_id = %s)', (self.actor_id, ))
     for mediaData in medias:
-      results.append(streamfinder.Media.Media(self.database, mediaData))
+      results.append(Media.Media(self.database, mediaData))
     return results
 
   def setStarredMedias(self, mediaList):
-    self.database.beginTransaction(streamfinder.database.IsolationLevel.READ_COMMITTED)
+    self.database.beginTransaction(database.IsolationLevel.READ_COMMITTED)
     cursor = self.database.conn.cursor()
     try:
       cursor.execute('DELETE FROM StarsIn WHERE actor_id = %s', (self.actor_id, ))

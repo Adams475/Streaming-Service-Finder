@@ -1,0 +1,127 @@
+Actor
++----------+-------------------+--------+------------+
+| actor_id | name              | sex    | birthDate  |
++----------+-------------------+--------+------------+
+|        1 | Zooey Deschanel   | Female | 1980-01-17 |
+|        2 | Rachel Mcadams    | Female | 1978-11-17 |
+|        3 | Leonardo Dicaprio | Male   | 1974-11-11 |
+|        4 | Timothy Salame    | Male   | 1995-12-27 |
+|        5 | Keanu Reeves      | Male   | 1964-09-02 |
+|        6 | Amy Adams         | Female | 1974-08-20 |
+|        7 | Ryan Gosling      | Male   | 1980-11-12 |
+|        8 | Will Smith        | Male   | 1968-01-08 |
++----------+-------------------+--------+------------+
+INSERT INTO Actor(actor_id, name, sex, birthDate) VALUES
+(1, "Zooey Deschanel", "Female", "1980-01-17"),
+(2, "Rachel Mcadams", "Female", "1978-11-17"),
+(3, "Leonardo Dicaprio", "Male", "1974-11-11"),
+(4, "Timothy Salame", "Male", "1995-12-27"),
+(5, "Keanu Reeves", "Male", "1964-09-02"),
+(6, "Amy Adams", "Female", "1974-08-20"),
+(7, "Ryan Gosling", "Male", "1980-11-12"),
+(8, "Will Smith", "Male", "1968-01-08");
+
+
+Director
++-------------+----------------------+--------+------------+
+| director_id | name                 | sex    | birthDate  |
++-------------+----------------------+--------+------------+
+|           1 | Christopher Nolan    | Male   | 1970-07-30 |
+|           2 | Steven Spielberg     | Male   | 1946-12-18 |
+|           3 | Quentin Tarantino    | Male   | 1963-03-27 |
+|           4 | Denis Villeneuve     | Male   | 1967-10-03 |
+|           5 | Richard Curtis       | Male   | 1956-11-08 |
+|           6 | Damien Chazelle      | Male   | 1985-01-19 |
+|           7 | Lana Wachowski       | Female | 1965-06-21 |
+|           8 | Alfred Hitchcock     | Male   | 1889-08-06 |
+|           9 | Francis Ford Coppola | Male   | 1939-04-01 |
++-------------+----------------------+--------+------------+
+INSERT INTO Director(director_id, name, sex, birthDate) VALUES
+(1, "Christopher Nolan", "Male", "1970-07-30"),
+(2, "Steven Spielberg", "Male", "1946-12-18"),
+(3, "Quentin Tarantino", "Male", "1963-03-27"),
+(4, "Denis Villeneuve", "Male", "1967-10-03"),
+(5, "Richard Curtis", "Male", "1956-11-08"),
+(6, "Damien Chazelle", "Male", "1985-01-19"),
+(7, "Lana Wachowski", "Female", "1965-06-21"),
+(8, "Alfred Hitchcock", "Male", "1889-08-06"),
+(9, "Francis Ford Coppola", "Male", "1939-04-01");
+
+Genre
++----------+-----------------+-------------------+
+| genre_id | name            | description       |
++----------+-----------------+-------------------+
+|        1 | Romance         | Lots of Love      |
+|        2 | Action          | Lots of Fighting  |
+|        3 | Comedy          | Lots of Laughing  |
+|        4 | Horror          | Lots of Scares    |
+|        5 | Documentary     | Lots of Narration |
+|        6 | Mystery         | Lots of Questions |
+|        7 | Science Fiction | Lots of Sci-fis   |
+|        8 | Thriller        | Lots of Thrills   |
+|        9 | Adventure       | Lots of Traveling |
++----------+-----------------+-------------------+
+INSERT INTO Genre(genre_id, name, description) VALUES
+(1, "Romance", "Lots of Love"),
+(2, "Action", "Lots of Fighting"),
+(3, "Comedy", "Lots of Laughing"),
+(4, "Horror", "Lots of Scares"),
+(5, "Documentary", "Lots of Narration"),
+(6, "Mystery", "Lots of Questions"),
+(7, "Science Fiction", "Lots of Sci-fis"),
+(8, "Thriller", "Lots of Thrills"),
+(9, "Adventure", "Lots of Traveling");
+
+Media
++----------+-------------------------+-------------+----------+-------------+
+| media_id | name                    | releaseYear | genre_id | director_id |
++----------+-------------------------+-------------+----------+-------------+
+|        1 | About Time              |        2013 |        1 |           5 |
+|        2 | La La Land              |        2012 |        1 |           6 |
+|        3 | Inception               |        2017 |        2 |           1 |
+|        4 | Dune                    |        2021 |        2 |           4 |
+|        5 | Blade Runner 2049       |        2017 |        2 |           4 |
+|        6 | Arrival                 |        2016 |        7 |           4 |
+|        7 | Jaws                    |        1975 |        2 |           2 |
+|        8 | The Matrix              |        1999 |        2 |           7 |
+|        9 | Raiders Of The Lost Ark |        1981 |        2 |           2 |
+|       10 | The Temple of Doom      |        1987 |        2 |           2 |
++----------+-------------------------+-------------+----------+-------------+
+INSERT INTO Media(media_id, name, releaseYear, genre_id, director_id) VALUES
+(1, "About Time", 2013, 1, 5),
+(2, "La La Land", 2012, 1, 6),
+(3, "Inception", 2017, 2, 1),
+(4, "Dune", 2021, 2, 4),
+(5, "Blade Runner 2049", 2017, 2, 4),
+(6, "Arrival", 2016, 7, 4),
+(7, "Jaws", 1975, 2, 2),
+(8, "The Matrix", 1999, 2, 7),
+(9, "Raiders Of The Lost Ark", 1981, 2, 2),
+(10, "The Temple of Doom", 1987, 2, 2);
+
+StarsIn
++----------+----------+
+| actor_id | media_id |
++----------+----------+
+|        2 |        1 |
+|        3 |        3 |
+|        4 |        4 |
+|        7 |        5 |
+|        6 |        6 |
+|        5 |        8 |
++----------+----------+
+INSERT INTO StarsIn(actor_id, media_id) VALUES
+(2, 1),
+(3, 3),
+(4, 4),
+(7, 5),
+(6, 6),
+(5, 8);
+
+StreamingService
+INSERT INTO StreamingService(name) VALUES
+("Netflix"),
+("Hulu"),
+("HBO Max"),
+("Disney+"),
+("Paramount+");

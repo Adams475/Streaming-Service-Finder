@@ -1,10 +1,10 @@
 import json
 
-import streamfinder.Actor
-import streamfinder.Director
-import streamfinder.StreamingService
+import Actor
+import Director
+import StreamingService
 
-from streamfinder.database import IsolationLevel
+from database import IsolationLevel
 
 class Media:
 
@@ -92,14 +92,14 @@ class Media:
     results = []
     actors = self.database.query('SELECT * FROM StarsIn NATURAL JOIN Actor WHERE media_id = %s', (self.media_id, ))
     for actorData in actors:
-      results.append(streamfinder.Actor.Actor(self.database, actorData))
+      results.append(Actor.Actor(self.database, actorData))
     return results
 
   def getNotStarringActors(self):
     results = []
     actors = self.database.query('SELECT * FROM Actor WHERE actor_id NOT IN (SELECT actor_id FROM StarsIn WHERE media_id = %s)', (self.media_id, ))
     for actorData in actors:
-      results.append(streamfinder.Actor.Actor(self.database, actorData))
+      results.append(Actor.Actor(self.database, actorData))
     return results
 
   def setStarredActors(self, actorList):
@@ -118,14 +118,14 @@ class Media:
     results = []
     services = self.database.query('SELECT * FROM ViewableOn NATURAL JOIN StreamingService WHERE media_id = %s', (self.media_id, ))
     for serviceData in services:
-      results.append(streamfinder.StreamingService.StreamingService(self.database, serviceData))
+      results.append(StreamingService.StreamingService(self.database, serviceData))
     return results
 
   def getUnavailableStreamingServices(self):
     results = []
     services = self.database.query('SELECT * FROM StreamingService WHERE ss_id NOT IN (SELECT ss_id FROM ViewableOn WHERE media_id = %s)', (self.media_id, ))
     for serviceData in services:
-      results.append(streamfinder.StreamingService.StreamingService(self.database, serviceData))
+      results.append(StreamingService.StreamingService(self.database, serviceData))
     return results
 
   def setAvailableStreamingServices(self, streamingServiceList):

@@ -1,7 +1,7 @@
 import json
 
-import streamfinder.Media
-from streamfinder.database import IsolationLevel
+import Media
+from database import IsolationLevel
 
 class StreamingService:
 
@@ -31,14 +31,14 @@ class StreamingService:
     results = []
     medias = self.database.query('SELECT * FROM ViewableOn NATURAL JOIN Media WHERE ss_id = %s', (self.ss_id, ))
     for mediaData in medias:
-      results.append(streamfinder.Media.Media(self.database, mediaData))
+      results.append(Media.Media(self.database, mediaData))
     return results
 
   def getUnavailableMedia(self):
     results = []
     medias = self.database.query('SELECT * FROM Media WHERE media_id NOT IN (SELECT media_id FROM ViewableOn WHERE ss_id = %s)', (self.ss_id, ))
     for mediaData in medias:
-      results.append(streamfinder.Media.Media(self.database, mediaData))
+      results.append(Media.Media(self.database, mediaData))
     return results
 
   def setAvailableMedia(self, mediaList):
